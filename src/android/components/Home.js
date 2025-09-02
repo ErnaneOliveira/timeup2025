@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    top:-50
   },
   button:{
     backgroundColor:'blue',
@@ -47,7 +48,8 @@ const styles = StyleSheet.create({
   },
   image:{
     width:200,
-    height:50
+    height:50,
+    margin:30
 
   },
   block:{
