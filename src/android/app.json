@@ -2,6 +2,11 @@
   "expo": {
     "name": "timeup2025",
     "slug": "timeup2025",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    }
   }
 }
