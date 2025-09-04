@@ -2,6 +2,7 @@
 import React, { createRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { AppProvider } from "./AppContext";
 
 import Home from './Home';
 import CreateEventTabs from './CreateEventTabs';
@@ -11,7 +12,9 @@ const Stack = createNativeStackNavigator();
 
 export default function Navigation() {
   return (
+    <AppProvider>
     <NavigationContainer>
+      
       <Stack.Navigator initialRouteName="Home"
       screenOptions={{
             animation: 'fade', // 'fade' gives a dissolve effect
@@ -23,8 +26,6 @@ export default function Navigation() {
           name="Home" 
           component={Home} 
           options={{ title: 'Início', headerShown: false} }
-          
-  
         />
         <Stack.Screen 
           name="Eventos" 
@@ -39,5 +40,6 @@ export default function Navigation() {
         />
       </Stack.Navigator>
     </NavigationContainer>
+    </AppProvider>
   );
 }

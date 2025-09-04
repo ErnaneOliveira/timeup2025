@@ -1,12 +1,15 @@
 import { StyleSheet, View, Text, TouchableOpacity, TextInput } from "react-native";
 import Checkbox from 'expo-checkbox';
-import { useState, useEffect } from "react";
+import {useContext, useState, useEffect } from "react";
 import RNCalendarEvents from 'react-native-calendar-events';
 import * as Calendar from 'expo-calendar';
 import * as Permissions from 'expo-permissions';
+import { AppContext } from "./AppContext";
 
+export default function EventTab1({navigation}){
 
-export default function EventTab1(){
+    const { event, setEvent, updateEventField} = useContext(AppContext);
+
 
     const [isChecked, setChecked] = useState(false);
     const [titulo, setTitulo] = useState("");
@@ -16,7 +19,56 @@ export default function EventTab1(){
     const [dataTermino, setDataTermino]=useState("");
     const [eventId, setEventId]=useState(null);
 
-    const handlePostRequest = async () => {
+    const handlePostRequest2 = async (cod) => {
+  try {
+    if (!event) {
+      console.error("event object is undefined");
+      return;
+    }
+
+    console.log("Sending request...");
+
+    const response = await fetch(
+      "http://atendimento.caed.ufmg.br:8000/timeup2025/createevent.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          codCalendar: cod,
+          tituloEvento: event.titulo,
+          descricaoEvento: event.descricao,
+          prioridadeEvento: event.prioridade,
+          locationEvento: event.endereco,
+          dataInicioEvento: event.dataInicio,
+          dataTerminoEvento: event.dataTermino,
+          codCategoria: event.codCategoria,
+          linkEvento: event.link,
+          arquivoEvento: event.arquivo,
+          nomeContatoEvento: event.nomeContato,
+          numeroContatoEvento: event.numeroContato,
+          emailEvento: event.email,
+        }).toString(),
+      }
+    );
+
+    const text = await response.text();
+    console.log("Raw response:", text);
+
+    // Try parse JSON if possible
+    try {
+      const data = JSON.parse(text);
+      setResponseData(data);
+    } catch {
+      console.warn("Response is not valid JSON");
+    }
+  } catch (error) {
+    console.error("Fetch error:", error);
+  }
+};
+
+    const handlePostRequest = async (cod) => {
     try {
       const response = await fetch('http://atendimento.caed.ufmg.br:8000/timeup2025/createevent.php', {
         method: 'POST',
@@ -24,12 +76,19 @@ export default function EventTab1(){
           'Content-Type': 'application/x-www-form-urlencoded', // Important for JSON payload
         },
         body: new URLSearchParams({
-          codCalendar: {eventId},
-          tituloEvento: {tituloEvento},
-          descricaoEvento: {descricaoEvento},
-          
-
-          
+          codCalendar: cod,
+          tituloEvento: event.titulo,
+          descricaoEvento: event.descricao,
+          prioridadeEvento: event.prioridade,
+          locationEvento: event.endereco,
+          dataInicioEvento: event.dataInicio,
+          dataTerminoEvento: event.dataTermino,
+          codCategoria: event.codCategoria,
+          linkEvento: event.link,
+          arquivoEvento: event.arquivo,
+          nomeContatoEvento: event.nomeContato,
+          numeroContatoEvento: event.numeroContato,
+          emailEvento: event.email
         }).toString(),
       });
 
@@ -52,17 +111,44 @@ export default function EventTab1(){
         const defaultCalendar = calendars[0].id;
 
         const codEvent = await Calendar.createEventAsync(defaultCalendar, {
-          title: 'Meeting with team',
-          startDate: new Date('2025-09-03T15:00:00'),
-          endDate: new Date('2025-09-03T16:00:00'),
-          location: 'Zoom',
-          notes: 'Discuss project updates',
+          title: event.titulo,
+          startDate: new Date(event.dataInicio),
+          endDate: new Date(event.dataTermino),
+          location: event.endereco,
+          notes: event.descricao,
           timeZone: 'America/Sao_Paulo', // timezone here
         });
+        
+        console.log("Event id: ", codEvent);
 
-        console.log('Event created with ID:', codEvent);
+        updateEventField('codEvento', codEvent);
+
+
+        console.log('Event codEvent after update: ', event.codEvento);
+
+        handlePostRequest2(codEvent)
+
         return codEvent;
       }
+    }
+
+    
+    const savedata=()=>{
+        
+          const newEvent = createCalendarEvent();
+
+          updateEventField('codEvento', newEvent);
+          console.log('Event codEvent after update: ', event.codEvento);
+   
+          handlePostRequest();
+
+
+    } 
+
+    const showData=()=>{
+      
+      console.log(event);
+
     }
 
 
@@ -70,11 +156,11 @@ return(
     <View style={styles.container}>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Título</Text>
-            <TextInput value={titulo} onChangeText={setTitulo} style={styles.textInput}></TextInput>
+            <TextInput value={event.titulo} onChangeText={setTitulo} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Descrição</Text>
-            <TextInput value={descricao} onChangeText={setDescricao} style={styles.textInput}></TextInput>
+            <TextInput value={event.descricao} onChangeText={setDescricao} style={styles.textInput}></TextInput>
         </View>
         <View style={[styles.questionNoImage, {flexDirection:'row'}]}>
              <Checkbox
@@ -87,18 +173,18 @@ return(
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Endereço</Text>
-            <TextInput value={endereco} onChangeText={setEndereco} style={styles.textInput}></TextInput>
+            <TextInput value={event.endereco} onChangeText={setEndereco} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Data de Início</Text>
-            <TextInput value={dataInicio} onChangeText={setDataInicio} style={styles.textInput}></TextInput>
+            <TextInput value={event.dataInicio} onChangeText={setDataInicio} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Data de Término</Text>
-            <TextInput value={dataTermino} onChangeText={setDataTermino} style={styles.textInput}></TextInput>
+            <TextInput value={event.dataTermino} onChangeText={setDataTermino} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.centerView}>
-            <TouchableOpacity style={styles.button} onPress={()=> {createCalendarEvent()}}>
+            <TouchableOpacity style={styles.button} onPress={createCalendarEvent}>
                 <Text style={styles.buttonText}>Criar Evento</Text>
             </TouchableOpacity>
         </View>

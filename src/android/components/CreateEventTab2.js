@@ -1,34 +1,38 @@
 import {TextInput, StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { AppContext } from "./AppContext";
+import { useContext } from "react";
 
 export default function EventTab2(){
+
+const { event, setEvent} = useContext(AppContext);
 
 return(
     <View style={styles.container}>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Categoria</Text>
-            <TextInput style={styles.textInput}></TextInput>
+            <TextInput value={event.codCategoria.toString()} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Link da tarefa</Text>
-            <TextInput style={styles.textInput}></TextInput>
+            <TextInput value={event.link} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Anexar Arquivo</Text>
-            <TextInput style={styles.textInput}></TextInput>
+            <TextInput value={event.arquivo} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Nome Contato</Text>
-            <TextInput style={styles.textInput}></TextInput>
+            <TextInput value={event.nomeContato} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Número</Text>
-            <TextInput style={styles.textInput}></TextInput>
+            <TextInput value={event.numeroContato} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>E-mail</Text>
-            <TextInput style={styles.textInput}></TextInput>
+            <TextInput value={event.email} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.centerView}>
             <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate('Eventos')}>
