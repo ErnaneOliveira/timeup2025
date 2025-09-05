@@ -1,4 +1,4 @@
-import {TextInput, StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import {Image, TextInput, StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { AppContext } from "./AppContext";
@@ -19,13 +19,20 @@ return(
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Categoria</Text>
             <Text style={styles.textInput}>{event.codCategoria}</Text>
+        </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Link da tarefa</Text>
-            <Text style={styles.textInput}>{event.link}</Text>
+            <View style={{flexDirection:'row', justifyContent:'flex-end', alignItems:'flex-end'}}>
+            <Text style={[styles.textInput, {width:300, }]}>{event.link}</Text>
+            <Image style={styles.logo} source={require('../assets/link.png')}></Image>
+            </View>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Anexar Arquivo</Text>
-            <Text style={styles.textInput}>{event.arquivo}</Text>
+            <View style={{flexDirection:'row'}}>
+            <Text style={[styles.textInput, {width:300, justifyContent:'flex-end', alignItems:'flex-end'}]}>{event.arquivo}</Text>
+            <Image style={styles.logo} source={require('../assets/arquivo.png')}></Image>
+            </View>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Nome Contato</Text>
@@ -39,7 +46,6 @@ return(
             <Text style={styles.labelText}>E-mail</Text>
             <Text style={styles.textInput}>{event.email}</Text>
         </View>
-    </View>
 </View>
 );
 
@@ -89,5 +95,10 @@ const styles = StyleSheet.create({
     alignItems:'center',
     margin:25,
     marginTop:15
+  },
+  logo:{
+     width:40,
+     height:40,
+     resizeMode:'contain'
   }
 });

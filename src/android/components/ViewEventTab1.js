@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, TouchableOpacity, TextInput } from "react-native";
+import { Image, StyleSheet, View, Text, TouchableOpacity, TextInput } from "react-native";
 import Checkbox from 'expo-checkbox';
 import {useContext, useState, useEffect } from "react";
 import RNCalendarEvents from 'react-native-calendar-events';
@@ -21,12 +21,6 @@ export default function ViewEventTab1({route, navigation}){
 
 
     const [isChecked, setChecked] = useState(false);
-    const [titulo, setTitulo] = useState("");
-    const [descricao, setDescricao]= useState("");
-    const [endereco, setEndereco]=useState("");
-    const [dataInicio, setDataInicio]=useState("");
-    const [dataTermino, setDataTermino]=useState("");
-    const [eventId, setEventId]=useState(null);
 
     useEffect(() => {
 
@@ -83,7 +77,11 @@ return(
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Endereço</Text>
-            <Text style={styles.textInput}>{event.endereco}</Text>
+            <View style={{flexDirection:'row'}}>
+              <Text style={[styles.textInput, {width:300}]}>{event.endereco}</Text>
+              <Image style={styles.logo} source={require('../assets/location.png')}></Image>
+            </View>
+            
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Data de Início</Text>
@@ -143,5 +141,10 @@ const styles = StyleSheet.create({
     alignItems:'center',
     margin:25,
     marginTop:15
+  },
+  logo:{
+     width:40,
+     height:40,
+     resizeMode:'contain'
   }
 });
