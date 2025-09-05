@@ -7,6 +7,7 @@ import { AppProvider } from "./AppContext";
 import Home from './Home';
 import CreateEventTabs from './CreateEventTabs';
 import Agenda from './Agenda';
+import DetalhesTab from './DetalhesTab';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +39,13 @@ export default function Navigation() {
           component={Agenda} 
           options={{ title: 'Eventos do dia' }}
         />
+
+        <Stack.Screen 
+          name="Detalhes" 
+          component={DetalhesTab} 
+          options={{ title: 'Detalhes do evento' }}
+        />
+
       </Stack.Navigator>
     </NavigationContainer>
     </AppProvider>

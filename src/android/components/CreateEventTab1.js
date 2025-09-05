@@ -10,6 +10,14 @@ export default function EventTab1({navigation}){
 
     const { event, setEvent, updateEventField} = useContext(AppContext);
 
+    // Helper: update one field only
+  const updateEvent = (field, value) => {
+    setEvent(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
 
     const [isChecked, setChecked] = useState(false);
     const [titulo, setTitulo] = useState("");
@@ -150,17 +158,24 @@ export default function EventTab1({navigation}){
       console.log(event);
 
     }
+ useEffect(() => {
 
+    //updateEventField('titulo','New title');
+    console.log("event.titulo", event.titulo);
+
+    
+  }, []);
+    
 
 return(
     <View style={styles.container}>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Título</Text>
-            <TextInput value={event.titulo} onChangeText={setTitulo} style={styles.textInput}></TextInput>
+            <TextInput value={event.titulo} onChangeText={(text) => updateEvent("titulo", text)} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Descrição</Text>
-            <TextInput value={event.descricao} onChangeText={setDescricao} style={styles.textInput}></TextInput>
+            <TextInput value={event.descricao} onChangeText={(text) => updateEvent("descricao", text)} style={styles.textInput}></TextInput>
         </View>
         <View style={[styles.questionNoImage, {flexDirection:'row'}]}>
              <Checkbox
@@ -173,15 +188,15 @@ return(
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Endereço</Text>
-            <TextInput value={event.endereco} onChangeText={setEndereco} style={styles.textInput}></TextInput>
+            <TextInput value={event.endereco} onChangeText={(text) => updateEvent("endereco", text)} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Data de Início</Text>
-            <TextInput value={event.dataInicio} onChangeText={setDataInicio} style={styles.textInput}></TextInput>
+            <TextInput value={event.dataInicio} onChangeText={(text) => updateEvent("dataInicio", text)} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Data de Término</Text>
-            <TextInput value={event.dataTermino} onChangeText={setDataTermino} style={styles.textInput}></TextInput>
+            <TextInput value={event.dataTermino} onChangeText={(text) => updateEvent("dataTermino", text)} style={styles.textInput}></TextInput>
         </View>
         <View style={styles.centerView}>
             <TouchableOpacity style={styles.button} onPress={createCalendarEvent}>

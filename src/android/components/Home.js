@@ -17,7 +17,7 @@ return(
           <TouchableOpacity onPress={()=> navigation.navigate('Agenda')}>
             <Image style={styles.logo} source={require('../assets/categorias.png')}/>
         </TouchableOpacity>
-        <TouchableOpacity onPress={()=> navigation.navigate('Eventos')}>
+        <TouchableOpacity onPress={()=> navigation.navigate('Detalhes')}>
             <Image style={styles.logo} source={require('../assets/settings.png')}/>
         </TouchableOpacity>
         </View>
