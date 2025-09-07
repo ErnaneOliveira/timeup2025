@@ -8,6 +8,7 @@ import Home from './Home';
 import CreateEventTabs from './CreateEventTabs';
 import Agenda from './Agenda';
 import DetalhesTab from './DetalhesTab';
+import Web from './WebView';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,6 +45,12 @@ export default function Navigation() {
           name="Detalhes" 
           component={DetalhesTab} 
           options={{ title: 'Detalhes do evento' }}
+        />
+
+        <Stack.Screen 
+          name="WebView" 
+          component={Web} 
+          options={{ title: 'WebView' }}
         />
 
       </Stack.Navigator>

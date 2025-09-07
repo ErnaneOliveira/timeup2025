@@ -1,8 +1,8 @@
-import { StyleSheet, View, Text, TouchableOpacity, TextInput } from "react-native";
+import { Linking, Image, Button, Modal, StyleSheet, StatusBar, View, Text, TouchableOpacity, TextInput } from "react-native";
 import Checkbox from 'expo-checkbox';
 import {useContext, useState, useEffect } from "react";
 import RNCalendarEvents from 'react-native-calendar-events';
-import * as Calendar from 'expo-calendar';
+import {Calendar} from 'react-native-calendars';
 import * as Permissions from 'expo-permissions';
 import { AppContext } from "./AppContext";
 
@@ -26,6 +26,12 @@ export default function EventTab1({navigation}){
     const [dataInicio, setDataInicio]=useState("");
     const [dataTermino, setDataTermino]=useState("");
     const [eventId, setEventId]=useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [calendarInput, setCalendarInput] = useState("");
+
+    const fullDate = "2025-09-03 16:00:00";
+    const initialDate = fullDate.split(" ")[0];
 
     const handlePostRequest2 = async (cod) => {
   try {
@@ -107,6 +113,7 @@ export default function EventTab1({navigation}){
       const data = await response.json();
       setResponseData(data);
       console.log(data);
+      navigation.replace('Agenda');
     } catch (error) {
       console.error('Error:', error);
     }
@@ -134,30 +141,13 @@ export default function EventTab1({navigation}){
 
         console.log('Event codEvent after update: ', event.codEvento);
 
-        handlePostRequest2(codEvent)
+        handlePostRequest2(codEvent);
+        
 
         return codEvent;
       }
     }
 
-    
-    const savedata=()=>{
-        
-          const newEvent = createCalendarEvent();
-
-          updateEventField('codEvento', newEvent);
-          console.log('Event codEvent after update: ', event.codEvento);
-   
-          handlePostRequest();
-
-
-    } 
-
-    const showData=()=>{
-      
-      console.log(event);
-
-    }
  useEffect(() => {
 
     //updateEventField('titulo','New title');
@@ -165,10 +155,45 @@ export default function EventTab1({navigation}){
 
     
   }, []);
+
+  const setValue=(val)=>{
+
+    if(calendarInput==='dataInicio'){
+
+      updateEvent("dataInicio", val + " 08:00:00");
+
+    }
+    else{
+
+      updateEvent("dataTermino", val + " 17:00:00");
+
+    }
+  }
+
+   const openMaps = async () => {
+      const location = event.endereco; // your string
+      const appUrl = `comgooglemaps://?q=${encodeURIComponent(location)}`;
+      const webUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+  
+      try {
+        const supported = await Linking.canOpenURL(appUrl);
+        if (supported) {
+          await Linking.openURL(appUrl); // opens directly in Google Maps app
+        } else {
+          await Linking.openURL(webUrl); // fallback to browser
+        }
+      } catch (err) {
+        Alert.alert("Error", "Unable to open Google Maps");
+      }
+    };
     
 
 return(
     <View style={styles.container}>
+      <StatusBar 
+                backgroundColor="#2a69b9" // Android only
+                barStyle="light-content"   // "dark-content" for dark text/icons
+              /> 
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Título</Text>
             <TextInput value={event.titulo} onChangeText={(text) => updateEvent("titulo", text)} style={styles.textInput}></TextInput>
@@ -188,21 +213,67 @@ return(
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Endereço</Text>
-            <TextInput value={event.endereco} onChangeText={(text) => updateEvent("endereco", text)} style={styles.textInput}></TextInput>
-        </View>
+            <View style={{flexDirection:'row'}}>
+                <TextInput onChangeText={(text) => updateEvent("endereco", text)} style={[styles.textInput, {width:300}]}>{event.endereco}</TextInput>
+                <TouchableOpacity onPress={openMaps}>
+                    <Image style={styles.logo} source={require('../assets/location.png')}></Image>
+                </TouchableOpacity>
+                          
+                </View>
+            </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Data de Início</Text>
-            <TextInput value={event.dataInicio} onChangeText={(text) => updateEvent("dataInicio", text)} style={styles.textInput}></TextInput>
+            <View style={{flexDirection:'row'}}>
+              <TextInput value={event.dataInicio} onChangeText={(text) => updateEvent("dataInicio", text)} style={[styles.textInput, {width:300}]}></TextInput>
+              <TouchableOpacity onPress={() => {setModalVisible(true); setCalendarInput("dataInicio")}}>
+                    <Image style={styles.logo} source={require('../assets/agendaicone.png')}></Image>
+                </TouchableOpacity>
+            </View>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Data de Término</Text>
-            <TextInput value={event.dataTermino} onChangeText={(text) => updateEvent("dataTermino", text)} style={styles.textInput}></TextInput>
+            <View style={{flexDirection:'row'}}>
+                <TextInput value={event.dataTermino} onChangeText={(text) => updateEvent("dataTermino", text)} style={[styles.textInput, {width:300}]}></TextInput>
+                <TouchableOpacity onPress={() => {setModalVisible(true); setCalendarInput("dataTermino")}}>
+                    <Image style={styles.logo} source={require('../assets/agendaicone.png')}></Image>
+                </TouchableOpacity>
+            </View>
+
         </View>
         <View style={styles.centerView}>
             <TouchableOpacity style={styles.button} onPress={createCalendarEvent}>
                 <Text style={styles.buttonText}>Criar Evento</Text>
             </TouchableOpacity>
         </View>
+
+        <Modal
+        transparent={true}
+        animationType="fade"
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Calendar
+            current={initialDate}
+              initialDate={initialDate}
+              onDayPress={(day) => {
+
+                setValue(day.dateString);
+
+                setModalVisible(false);
+              }}
+              markedDates={{
+                [selectedDate]: { selected: true, selectedColor: "blue" },
+              }}
+            />
+            <Button title="Close" onPress={() => setModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
+
+
+        
         
     </View>
 );
@@ -210,6 +281,19 @@ return(
 }
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 10,
+    width: "90%",
+    elevation: 5,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -253,5 +337,10 @@ const styles = StyleSheet.create({
     alignItems:'center',
     margin:25,
     marginTop:15
+  },
+  logo:{
+     width:40,
+     height:40,
+     resizeMode:'contain'
   }
 });

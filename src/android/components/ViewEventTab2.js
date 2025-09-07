@@ -1,4 +1,4 @@
-import {Image, TextInput, StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import {Linking, Image, StatusBar, TextInput, StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { AppContext } from "./AppContext";
@@ -14,17 +14,56 @@ const updateEvent = (field, value) => {
     }));
   };
 
+const openGmail = (email, subject) => {
+    const to = email;
+    const body = "This is a test email body.";
+
+    // encode URI components to handle spaces & special chars
+    const url = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    Linking.openURL(url).catch(err => console.error("Error:", err));
+  };
+
+
+const openWhatsApp = (phoneNumber, message = "") => {
+  // WhatsApp expects phone numbers in international format without "+" or spaces
+  const formattedNumber = phoneNumber.replace(/\D/g, ""); // remove non-digits
+
+  let url = `whatsapp://send?phone=${formattedNumber}`;
+
+  if (message) {
+    url += `&text=${encodeURIComponent(message)}`;
+  }
+
+  Linking.canOpenURL(url)
+    .then((supported) => {
+      if (!supported) {
+        alert("WhatsApp is not installed on this device");
+      } else {
+        return Linking.openURL(url);
+      }
+    })
+    .catch((err) => console.error("Error opening WhatsApp:", err));
+};
+
 return(
     <View style={styles.container}>
+      <StatusBar 
+                backgroundColor="#2a69b9" // Android only
+                barStyle="light-content"   // "dark-content" for dark text/icons
+              /> 
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Categoria</Text>
-            <Text style={styles.textInput}>{event.codCategoria}</Text>
+            <Text style={[styles.textInput, {width:300, justifyContent:'flex-end', alignItems:'flex-end'}]}>{event.codCategoria}</Text>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Link da tarefa</Text>
             <View style={{flexDirection:'row', justifyContent:'flex-end', alignItems:'flex-end'}}>
             <Text style={[styles.textInput, {width:300, }]}>{event.link}</Text>
-            <Image style={styles.logo} source={require('../assets/link.png')}></Image>
+            <TouchableOpacity onPress={()=> navigation.navigate('WebView',{url: event.link})}>
+              <Image style={styles.logo} source={require('../assets/link.png')}></Image>
+            </TouchableOpacity>
+            
             </View>
         </View>
         <View style={styles.questionNoImage}>
@@ -36,15 +75,26 @@ return(
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Nome Contato</Text>
-            <Text style={styles.textInput}>{event.nomeContato}</Text>
+            <View style={{flexDirection:'row'}}>
+            <Text style={[styles.textInput, {width:300, justifyContent:'flex-end', alignItems:'flex-end'}]}>{event.nomeContato}</Text>
+            <TouchableOpacity onPress={()=> openWhatsApp(event.numeroContato, "Hello from my RN app!")}>
+              <Image style={styles.logo} source={require('../assets/contato.png')}></Image>
+            </TouchableOpacity>
+            </View>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Número</Text>
-            <Text style={styles.textInput}>{event.numeroContato}</Text>
+            <Text style={[styles.textInput, {width:300, justifyContent:'flex-end', alignItems:'flex-end'}]}>{event.numeroContato}</Text>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>E-mail</Text>
-            <Text style={styles.textInput}>{event.email}</Text>
+            <View style={{flexDirection:'row'}}>
+              <Text style={[styles.textInput, {width:300, justifyContent:'flex-end', alignItems:'flex-end'}]}>{event.email}</Text>
+              <TouchableOpacity onPress={()=> openGmail(event.email, event.titulo)}>
+                <Image style={styles.logo} source={require('../assets/email.png')}></Image>
+              </TouchableOpacity>
+            </View>
+            
         </View>
 </View>
 );

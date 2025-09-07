@@ -1,15 +1,20 @@
-import { Image, StyleSheet, View, Text, TouchableOpacity, TextInput } from "react-native";
+import { Button, Modal, Linking, Alert, Image, StatusBar, StyleSheet, View, Text, TouchableOpacity, TextInput } from "react-native";
 import Checkbox from 'expo-checkbox';
 import {useContext, useState, useEffect } from "react";
 import RNCalendarEvents from 'react-native-calendar-events';
-import * as Calendar from 'expo-calendar';
 import * as Permissions from 'expo-permissions';
 import { AppContext } from "./AppContext";
+import { Calendar } from "react-native-calendars";
 
 export default function ViewEventTab1({route, navigation}){
 
     const { event, setEvent, updateEventField} = useContext(AppContext);
     const [responseData, setResponseData] = useState(null);
+    const codEvento = route.params.codEvento;
+
+
+
+    console.log("codEvento: ", codEvento);
 
     // Helper: update one field only
   const updateEvent = (field, value) => {
@@ -21,12 +26,35 @@ export default function ViewEventTab1({route, navigation}){
 
 
     const [isChecked, setChecked] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+
+    
+    const openMaps = async () => {
+    const location = "Praça da Liberdade, Belo Horizonte"; // your string
+    const appUrl = `comgooglemaps://?q=${encodeURIComponent(location)}`;
+    const webUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+
+    try {
+      const supported = await Linking.canOpenURL(appUrl);
+      if (supported) {
+        await Linking.openURL(appUrl); // opens directly in Google Maps app
+      } else {
+        await Linking.openURL(webUrl); // fallback to browser
+      }
+    } catch (err) {
+      Alert.alert("Error", "Unable to open Google Maps");
+    }
+  };
+    const fullDate = "2025-09-03 16:00:00";
+   const initialDate = fullDate.split(" ")[0];
+   
 
     useEffect(() => {
 
     const handlePostRequest2 = async () => {
     try {
-      const response = await fetch("http://atendimento.caed.ufmg.br:8000/timeup2025/geteventbyid.php?codCalendar=15");
+      const response = await fetch("http://atendimento.caed.ufmg.br:8000/timeup2025/geteventbyid.php?codCalendar="+codEvento);
       const text = await response.text();
 
       const data = JSON.parse(text);
@@ -58,6 +86,10 @@ export default function ViewEventTab1({route, navigation}){
 
 return(
     <View style={styles.container}>
+      <StatusBar 
+                backgroundColor="#2a69b9" // Android only
+                barStyle="light-content"   // "dark-content" for dark text/icons
+              /> 
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Título</Text>
             <Text style={styles.textInput}>{event.titulo}</Text>
@@ -79,25 +111,76 @@ return(
             <Text style={styles.labelText}>Endereço</Text>
             <View style={{flexDirection:'row'}}>
               <Text style={[styles.textInput, {width:300}]}>{event.endereco}</Text>
-              <Image style={styles.logo} source={require('../assets/location.png')}></Image>
+              <TouchableOpacity onPress={openMaps}>
+                <Image style={styles.logo} source={require('../assets/location.png')}></Image>
+              </TouchableOpacity>
+              
             </View>
             
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Data de Início</Text>
-            <Text style={styles.textInput}>{event.dataInicio}</Text>
+            <View style={{flexDirection:'row'}}>
+              <Text style={[styles.textInput, {width:300}]}>{event.dataInicio}</Text>
+              <TouchableOpacity onPress={() => {setModalVisible(true); setSelectedDate(event.dataInicio.split(" ")[0])}}>
+                <Image style={styles.logo} source={require('../assets/agendaicone.png')}></Image>
+              </TouchableOpacity>
+            </View>
         </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Data de Término</Text>
-            <Text style={styles.textInput}>{event.dataTermino}</Text>
+            <View style={{flexDirection:'row'}}>
+              <Text style={[styles.textInput, {width:300}]}>{event.dataTermino}</Text>
+              <TouchableOpacity onPress={() => {setModalVisible(true); setSelectedDate(event.dataTermino.split(" ")[0])}}>
+                <Image style={styles.logo} source={require('../assets/agendaicone.png')}></Image>
+              </TouchableOpacity>
+            </View>
+            
         </View>
-        
+
+
+        <Modal
+        transparent={true}
+        animationType="fade"
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Calendar
+            current={initialDate}
+              initialDate={initialDate}
+              onDayPress={(day) => {
+
+                setModalVisible(false);
+              }}
+              markedDates={{
+                [selectedDate]: { selected: true, selectedColor: "blue" },
+              }}
+            />
+            <Button title="Close" onPress={() => setModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
     </View>
 );
 
 }
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 10,
+    width: "90%",
+    elevation: 5,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',

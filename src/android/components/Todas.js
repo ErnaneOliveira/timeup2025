@@ -1,4 +1,4 @@
-import { StatusBar, SectionList, ScrollView, StyleSheet, Text, View } from "react-native";
+import { StatusBar, TouchableOpacity, SectionList, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useState, useEffect } from "react";
 
 export default function Todas({route, navigation}){
@@ -79,7 +79,9 @@ export default function Todas({route, navigation}){
             
           if(keys[j]==formatData(responseData[i].dataInicioEvento)){
 
-            array.push(formatHour(responseData[i].dataInicioEvento) + " " + responseData[i].tituloEvento);
+            array.push({
+              titulo: formatHour(responseData[i].dataInicioEvento) + " " + responseData[i].tituloEvento,
+            codEvento: responseData[i].codEvento});
              
           }
           headers[keys[j]] = array;
@@ -104,7 +106,7 @@ export default function Todas({route, navigation}){
           backgroundColor="#2a69b9" // Android only
           barStyle="light-content"   // "dark-content" for dark text/icons
         /> 
-            <Text style={styles.labelText}>Todas</Text>
+            <Text style={styles.labelHeader}>Todas</Text>
             <ScrollView style={styles.questionNoImage}>
               {Object.entries(headers).map(([date, events]) => (
                 
@@ -117,13 +119,17 @@ export default function Todas({route, navigation}){
 
           {/* Events */}
           {events.map((event, idx) => (
-            <Text key={idx} style={styles.labelText}>
-              {event}
+            <Text key={idx} style={styles.labelText} onPress={()=> navigation.navigate('Detalhes',{codEvento: event.codEvento})}>
+              {event.titulo}
             </Text>
           ))}
         </View>
       ))}
             </ScrollView>
+            {/* Floating Action Button */}
+            <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Eventos')}>
+                <Text style={styles.fabIcon}>+</Text>
+            </TouchableOpacity>
         </View>
 
     );
@@ -197,5 +203,32 @@ const styles = StyleSheet.create({
   item: {
     fontSize: 16,
     marginLeft: 10,
+  },
+  fab: {
+    position: "absolute",
+    right: 20,
+    bottom: 20,
+    backgroundColor: "#6200ee",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 5, // Android shadow
+    shadowColor: "#000", // iOS shadow
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
+  fabIcon: {
+    fontSize: 28,
+    color: "white",
+  },
+  labelHeader:{
+    color:'black',
+    fontSize:20,
+    padding:15,
+    fontWeight:'bold',
+    textAlign:'center'
   },
 });

@@ -7,6 +7,9 @@
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
-    }
+    },
+    "plugins": [
+      "expo-web-browser"
+    ]
   }
 }

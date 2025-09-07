@@ -12,12 +12,11 @@ export default function CreateEventTabs() {
         screenOptions={{
           tabBarActiveTintColor: 'white',
           tabBarLabelStyle: { fontSize: 14 },
-          tabBarStyle: { backgroundColor: '#6200ee' },
+          tabBarStyle: { backgroundColor: '#347ad2' },
         }}
       >
         <Tab.Screen name="Básico" component={EventTab1} />
         <Tab.Screen name="Extras" component={EventTab2} />
-        <Tab.Screen name="Dropd" component={EventTab3} />
       </Tab.Navigator>
   );
 }

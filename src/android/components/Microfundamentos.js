@@ -1,4 +1,4 @@
-import { StatusBar, SectionList, ScrollView, StyleSheet, Text, View } from "react-native";
+import { StatusBar, TouchableOpacity, SectionList, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useState, useEffect } from "react";
 
 export default function Microfundamentos({route, navigation}){
@@ -105,7 +105,7 @@ export default function Microfundamentos({route, navigation}){
               backgroundColor="#2a69b9" // Android only
               barStyle="light-content"   // "dark-content" for dark text/icons
             /> 
-                <Text style={styles.labelText}>Provas</Text>
+                <Text style={styles.labelHeader}>Microfundamentos</Text>
                 <ScrollView style={styles.questionNoImage}>
                   {Object.entries(headers).map(([date, events]) => (
                     
@@ -125,6 +125,10 @@ export default function Microfundamentos({route, navigation}){
             </View>
           ))}
                 </ScrollView>
+                {/* Floating Action Button */}
+                      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Eventos')}>
+                        <Text style={styles.fabIcon}>+</Text>
+                      </TouchableOpacity>
             </View>
     
         );
@@ -199,4 +203,31 @@ export default function Microfundamentos({route, navigation}){
         fontSize: 16,
         marginLeft: 10,
       },
+      fab: {
+    position: "absolute",
+    right: 20,
+    bottom: 20,
+    backgroundColor: "#6200ee",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 5, // Android shadow
+    shadowColor: "#000", // iOS shadow
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
+  fabIcon: {
+    fontSize: 28,
+    color: "white",
+  },
+  labelHeader:{
+    color:'black',
+    fontSize:20,
+    padding:15,
+    fontWeight:'bold',
+    textAlign:'center'
+  },
     });
