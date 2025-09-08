@@ -1,14 +1,16 @@
-import { Linking, Image, Button, Modal, StyleSheet, StatusBar, View, Text, TouchableOpacity, TextInput } from "react-native";
+import { Alert, Linking, Image, Button, Modal, StyleSheet, StatusBar, View, Text, TouchableOpacity, TextInput } from "react-native";
 import Checkbox from 'expo-checkbox';
 import {useContext, useState, useEffect } from "react";
 import RNCalendarEvents from 'react-native-calendar-events';
 import {Calendar} from 'react-native-calendars';
 import * as Permissions from 'expo-permissions';
 import { AppContext } from "./AppContext";
+import { Dropdown } from 'react-native-element-dropdown';
 
 export default function EventTab1({navigation}){
 
     const { event, setEvent, updateEventField} = useContext(AppContext);
+    
 
     // Helper: update one field only
   const updateEvent = (field, value) => {
@@ -18,6 +20,20 @@ export default function EventTab1({navigation}){
     }));
   };
 
+  const [val, setVal] = useState(null);
+
+    const categorias = [ 
+    {value: "11", label: "Consulta" }, 
+    { value: "8", label: "Edição" }, 
+    { value: "5", label: "Etapa do projeto" }, 
+    { value: "1", label: "Evento" }, 
+    { value: "3", label: "Gravação" }, 
+    { value: "10", label: "Live" }, 
+    { value: "6", label: "Microfundamento" }, 
+    { value: "2", label: "Prova" }, 
+    { value: "4", label: "Reserva de Estúdio" }, 
+    { value: "9", label: "Reunião" }, 
+    { value: "7", label: "Tarefa" } ];
 
     const [isChecked, setChecked] = useState(false);
     const [titulo, setTitulo] = useState("");
@@ -33,6 +49,8 @@ export default function EventTab1({navigation}){
     const fullDate = "2025-09-03 16:00:00";
     const initialDate = fullDate.split(" ")[0];
 
+    console.log("Object keys: ", Object.keys(event));
+
     const handlePostRequest2 = async (cod) => {
   try {
     if (!event) {
@@ -40,7 +58,10 @@ export default function EventTab1({navigation}){
       return;
     }
 
+
     console.log("Sending request...");
+
+    
 
     const response = await fetch(
       "http://atendimento.caed.ufmg.br:8000/timeup2025/createevent.php",
@@ -193,7 +214,26 @@ return(
       <StatusBar 
                 backgroundColor="#2a69b9" // Android only
                 barStyle="light-content"   // "dark-content" for dark text/icons
-              /> 
+              />
+
+        <View style={styles.questionNoImage}>
+                    <Text style={styles.labelText}>Categoria</Text>
+                <Dropdown
+                        style={styles.dropdown}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        data={categorias}
+                        maxHeight={200}
+                        labelField="label"
+                        valueField="value"
+                        placeholder="Escolhe a categoria"
+                        value={val}
+                        onChange={(item) => {
+                          setVal(item.value);
+                          console.log("Selected:", item);
+                        }}
+                      />
+                </View>
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Título</Text>
             <TextInput value={event.titulo} onChangeText={(text) => updateEvent("titulo", text)} style={styles.textInput}></TextInput>
@@ -281,6 +321,14 @@ return(
 }
 
 const styles = StyleSheet.create({
+  dropdown: {
+      height: 50,
+      width:360,
+      borderColor: 'gray',
+      borderWidth: 0.5,
+      borderRadius: 8,
+      paddingHorizontal: 8,
+    },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.4)",
@@ -304,7 +352,7 @@ const styles = StyleSheet.create({
     alignItems:'flex-start',
     marginLeft:25,
     marginTop:15,
-    marginBottom:10
+    marginBottom:2
   },
   labelText:{
     color:'black',

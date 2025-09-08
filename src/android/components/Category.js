@@ -1,20 +1,18 @@
 import { StatusBar, TouchableOpacity, SectionList, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useState, useEffect } from "react";
-import Category from "./Category";
-
-export default function Todas({route, navigation}){
-
-  const [responseData, setResponseData]=useState([]);
-  const [sections, setSections]=useState();
-  const { data } = route.params || [];
-  const codCategory = route.params.codCategory;
 
 
-    useEffect(() => {
+
+const Category=({title, codCategory, header})=>{
+    
+    const [responseData, setResponseData]=useState([]);
+    const [sections, setSections]=useState();
+
+     useEffect(() => {
 
     const handlePostRequest = async () => {
 
-      const response = await fetch("http://atendimento.caed.ufmg.br:8000/timeup2025/getevents.php?codCategoria=2");
+      const response = await fetch("http://atendimento.caed.ufmg.br:8000/timeup2025/getevents.php?codCategoria=%");
       const text = await response.text();
       //console.log("Raw response:", text);
 
@@ -69,7 +67,11 @@ export default function Todas({route, navigation}){
 
       for(let i=0; i<responseData.length; i++){
 
-        headers[formatData(responseData[i].dataInicioEvento)]= [];
+        if(responseData[i].codCategoria===codCategory){
+            headers[formatData(responseData[i].dataInicioEvento)]= [];
+        }
+
+        
       }
 
       console.log("Headers: ", headers);
@@ -81,7 +83,8 @@ export default function Todas({route, navigation}){
         let array =[];
         for(let i=0; i<responseData.length; i++){
             
-          if(keys[j]==formatData(responseData[i].dataInicioEvento)){
+          if(keys[j]==formatData(responseData[i].dataInicioEvento) &
+        responseData[i].codCategoria===codCategory){
 
             array.push({
               titulo: formatHour(responseData[i].dataInicioEvento) + " " + responseData[i].tituloEvento,
@@ -101,45 +104,43 @@ export default function Todas({route, navigation}){
     
     getHeaders();
 
-
-
     return(
-
-      <View style={styles.container}>
-        <StatusBar 
-          backgroundColor="#2a69b9" // Android only
-          barStyle="light-content"   // "dark-content" for dark text/icons
-        /> 
-            <Text style={styles.labelHeader}>Provas</Text>
-            <ScrollView style={styles.questionNoImage}>
-              {Object.entries(headers).map(([date, events]) => (
-                
-        <View key={date} style={styles.section}>
-          {/* Header */}
-
-          <View style={styles.dayLabel}>
-                <Text style={styles.dayLabelText}>{date}</Text>
-          </View>
-
-          {/* Events */}
-          {events.map((event, idx) => (
-            <Text key={idx} style={styles.labelText} onPress={()=> navigation.navigate('Detalhes',{codEvento: event.codEvento})}>
-              {event.titulo}
-            </Text>
+    
+            <View style={styles.container}>
+            <StatusBar 
+              backgroundColor="#2a69b9" // Android only
+              barStyle="light-content"   // "dark-content" for dark text/icons
+            /> 
+                <Text style={styles.labelHeader}>{title}</Text>
+                <ScrollView style={styles.questionNoImage}>
+                  {Object.entries(headers).map(([date, events]) => (
+                    
+            <View key={date} style={styles.section}>
+              {/* Header */}
+    
+              <View style={styles.dayLabel}>
+                    <Text style={styles.dayLabelText}>{date}</Text>
+              </View>
+    
+              {/* Events */}
+              {events.map((event, idx) => (
+                <Text key={idx} style={styles.labelText} onPress={()=> navigation.navigate('Detalhes',{codEvento: event.codEvento})}>
+                  {event.titulo}
+                </Text>
+              ))}
+            </View>
           ))}
-        </View>
-      ))}
-            </ScrollView>
-            {/* Floating Action Button */}
-            <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Eventos')}>
-                <Text style={styles.fabIcon}>+</Text>
-            </TouchableOpacity>
-        </View>
+                </ScrollView>
+                {/* Floating Action Button */}
+                <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Eventos')}>
+                    <Text style={styles.fabIcon}>+</Text>
+                </TouchableOpacity>
+            </View>
+    
+        );
+    }
 
-        
-
-    );
-}
+export default Category;
 
 const styles = StyleSheet.create({
   container: {

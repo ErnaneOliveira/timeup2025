@@ -206,24 +206,7 @@ return(
                 backgroundColor="#2a69b9" // Android only
                 barStyle="light-content"   // "dark-content" for dark text/icons
               /> 
-        <View style={styles.questionNoImage}>
-            <Text style={styles.labelText}>Categoria</Text>
-        <Dropdown
-                style={styles.dropdown}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                data={categorias}
-                maxHeight={200}
-                labelField="label"
-                valueField="value"
-                placeholder="Escolhe a categoria"
-                value={value}
-                onChange={(item) => {
-                  setValue(item.value);
-                  console.log("Selected:", item);
-                }}
-              />
-        </View>
+        
         <View style={styles.questionNoImage}>
             <Text style={styles.labelText}>Link da tarefa</Text>
             <View style={{flexDirection:'row', justifyContent:'flex-end', alignItems:'flex-end'}}>

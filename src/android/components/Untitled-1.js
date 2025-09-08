@@ -30,3 +30,6 @@
             <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Eventos')}>
               <Text style={styles.fabIcon}>+</Text>
             </TouchableOpacity>
+
+
+

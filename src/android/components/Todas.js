@@ -1,10 +1,14 @@
 import { StatusBar, TouchableOpacity, SectionList, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useState, useEffect } from "react";
+import Category from "./Category";
 
 export default function Todas({route, navigation}){
 
   const [responseData, setResponseData]=useState([]);
   const [sections, setSections]=useState();
+  const { data } = route.params || [];
+  const codCategory = route.params.codCategory;
+
 
     useEffect(() => {
 
@@ -101,7 +105,7 @@ export default function Todas({route, navigation}){
 
     return(
 
-        <View style={styles.container}>
+      <View style={styles.container}>
         <StatusBar 
           backgroundColor="#2a69b9" // Android only
           barStyle="light-content"   // "dark-content" for dark text/icons
@@ -131,6 +135,8 @@ export default function Todas({route, navigation}){
                 <Text style={styles.fabIcon}>+</Text>
             </TouchableOpacity>
         </View>
+
+        
 
     );
 }
