@@ -1,6 +1,7 @@
 import { StatusBar, TouchableOpacity, SectionList, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useState, useEffect } from "react";
 import Category from "./Category";
+import TabButton from "./TabButton";
 
 export default function Todas({route, navigation}){
 
@@ -8,9 +9,11 @@ export default function Todas({route, navigation}){
   const [sections, setSections]=useState();
   const { data } = route.params || [];
   const codCategory = route.params.codCategory;
+  const [selectedIndex, setSelectedIndex] = useState(3);
 
 
     useEffect(() => {
+      setSelectedIndex(3);
 
     const handlePostRequest = async () => {
 
@@ -101,6 +104,25 @@ export default function Todas({route, navigation}){
     
     getHeaders();
 
+    const selected ='#c7fcce';
+    const defaultColor = "#f4f4f4";
+
+    const categorias = [ 
+    {value: "11", label: "Consulta" }, 
+    { value: "8", label: "Edição" }, 
+    { value: "5", label: "Etapa" }, 
+    { value: "1", label: "Evento" }, 
+    { value: "3", label: "Gravação" }, 
+    { value: "10", label: "Live" }, 
+    { value: "6", label: "MF" }, 
+    { value: "2", label: "Prova" }, 
+    { value: "4", label: "Reserva" }, 
+    { value: "9", label: "Reunião" }, 
+    { value: "7", label: "Tarefa" } ];
+
+    
+
+
 
 
     return(
@@ -111,6 +133,18 @@ export default function Todas({route, navigation}){
           barStyle="light-content"   // "dark-content" for dark text/icons
         /> 
             <Text style={styles.labelHeader}>Todas</Text>
+            <ScrollView horizontal={true} style={{height:80}}>
+              {categorias.map((button, index) => (
+                
+              <TabButton key={index} 
+                label={button.label} 
+                action={button.value} 
+                mycolor={button.value === selectedIndex.toString() ? selected : defaultColor}/>
+                
+                ))}
+
+            </ScrollView>
+            
             <ScrollView style={styles.questionNoImage}>
               {Object.entries(headers).map(([date, events]) => (
                 
