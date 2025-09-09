@@ -2,7 +2,7 @@ import { Alert, Linking, Image, Button, Modal, StyleSheet, StatusBar, View, Text
 import Checkbox from 'expo-checkbox';
 import {useContext, useState, useEffect } from "react";
 import RNCalendarEvents from 'react-native-calendar-events';
-import * as Calendar from 'expo-calendar';
+import Calendar from 'expo-calendar';
 import { AppContext } from "./AppContext";
 import { Dropdown } from 'react-native-element-dropdown';
 import LargeButton from "./LargeButton";
@@ -56,57 +56,54 @@ export default function EventTab1({navigation}){
     console.log("Object keys: ", Object.keys(event));
 
     const handlePostRequest2 = async (cod) => {
-  try {
-    if (!event) {
-      console.error("event object is undefined");
-      return;
-    }
+      try {
+        if (!event) {
+          console.error("event object is undefined");
+          return;
+        }
 
+        console.log("Sending request...");
 
-    console.log("Sending request...");
+        const response = await fetch(
+          "http://atendimento.caed.ufmg.br:8000/timeup2025/createevent.php",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              codCalendar: cod,
+              tituloEvento: event.titulo,
+              descricaoEvento: event.descricao,
+              prioridadeEvento: event.prioridade,
+              locationEvento: event.endereco,
+              dataInicioEvento: event.dataInicio,
+              dataTerminoEvento: event.dataTermino,
+              codCategoria: event.codCategoria,
+              linkEvento: event.link,
+              arquivoEvento: event.arquivo,
+              nomeContatoEvento: event.nomeContato,
+              numeroContatoEvento: event.numeroContato,
+              emailEvento: event.email,
+            }).toString(),
+          }
+        );
 
-    
+        const text = await response.text();
+        console.log("Raw response:", text);
 
-    const response = await fetch(
-      "http://atendimento.caed.ufmg.br:8000/timeup2025/createevent.php",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          codCalendar: cod,
-          tituloEvento: event.titulo,
-          descricaoEvento: event.descricao,
-          prioridadeEvento: event.prioridade,
-          locationEvento: event.endereco,
-          dataInicioEvento: event.dataInicio,
-          dataTerminoEvento: event.dataTermino,
-          codCategoria: event.codCategoria,
-          linkEvento: event.link,
-          arquivoEvento: event.arquivo,
-          nomeContatoEvento: event.nomeContato,
-          numeroContatoEvento: event.numeroContato,
-          emailEvento: event.email,
-        }).toString(),
+        // Try parse JSON if possible
+        try {
+          const data = JSON.parse(text);
+          setResponseData(data);
+          
+        } catch {
+          console.warn("Response is not valid JSON");
+        }
+      } catch (error) {
+        console.error("Fetch error:", error);
       }
-    );
-
-    const text = await response.text();
-    console.log("Raw response:", text);
-
-    // Try parse JSON if possible
-    try {
-      const data = JSON.parse(text);
-      setResponseData(data);
-      
-    } catch {
-      console.warn("Response is not valid JSON");
-    }
-  } catch (error) {
-    console.error("Fetch error:", error);
-  }
-  navigation.navigate('Agenda');
+      navigation.navigate('Agenda');
 };
 
     const handlePostRequest = async (cod) => {
