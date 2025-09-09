@@ -9,6 +9,7 @@ import CreateEventTabs from './CreateEventTabs';
 import Agenda from './Agenda';
 import DetalhesTab from './DetalhesTab';
 import Web from './WebView';
+import Cards from './Cards'
 
 const Stack = createNativeStackNavigator();
 
@@ -17,13 +18,20 @@ export default function Navigation() {
     <AppProvider>
     <NavigationContainer>
       
-      <Stack.Navigator initialRouteName="Home"
+      <Stack.Navigator initialRouteName="Cards"
       screenOptions={{
             animation: 'fade', // 'fade' gives a dissolve effect
             headerStyle: {
             backgroundColor: "#347ad2", // header background color
           },headerTintColor: "#fff",       // back button & title color
         }}>
+
+        <Stack.Screen 
+          name="Cards" 
+          component={Cards} 
+          options={{ title: 'Dispositivos conectados'} }
+        />
+
         <Stack.Screen 
           name="Home" 
           component={Home} 
