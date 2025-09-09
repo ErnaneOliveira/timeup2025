@@ -6,6 +6,7 @@ import {Calendar} from 'react-native-calendars';
 import * as Permissions from 'expo-permissions';
 import { AppContext } from "./AppContext";
 import { Dropdown } from 'react-native-element-dropdown';
+import LargeButton from "./LargeButton";
 
 export default function EventTab1({navigation}){
 
@@ -281,9 +282,7 @@ return(
 
         </View>
         <View style={styles.centerView}>
-            <TouchableOpacity style={styles.button} onPress={createCalendarEvent}>
-                <Text style={styles.buttonText}>Criar Evento</Text>
-            </TouchableOpacity>
+            <LargeButton buttonText={'My connection'} action={createCalendarEvent} params={''}></LargeButton>
         </View>
 
         <Modal

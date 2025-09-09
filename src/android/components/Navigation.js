@@ -18,7 +18,7 @@ export default function Navigation() {
     <AppProvider>
     <NavigationContainer>
       
-      <Stack.Navigator initialRouteName="Cards"
+      <Stack.Navigator initialRouteName="Home"
       screenOptions={{
             animation: 'fade', // 'fade' gives a dissolve effect
             headerStyle: {

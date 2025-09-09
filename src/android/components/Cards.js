@@ -11,18 +11,16 @@ export default function Cards(){
 
             <View style={styles.card}>
             <Image source={require('../assets/devices.png')} style={styles.logo}></Image>
-                        <Text style={styles.text}>   
-                            Você pode conectar mais dispositivos a essa conta.
-                        </Text>
-                        <LargeButton buttonText={'Connect device'}></LargeButton>
+                <Text style={styles.text}>   
+                    Você pode conectar mais dispositivos a essa conta.
+                </Text>
+                <LargeButton buttonText={'Connect device'} action={console.log} params={'Connect device'}></LargeButton>
             </View>
-
             <View style={styles.card}>
                 <Text style={styles.text}>   
                     Você pode conectar mais dispositivos a essa conta.
                 </Text>
-                <LargeButton buttonText={'My connection'}></LargeButton>
-
+                <LargeButton buttonText={'My connection'} action={console.log} params={'My connection'}></LargeButton>
             </View>
 
 

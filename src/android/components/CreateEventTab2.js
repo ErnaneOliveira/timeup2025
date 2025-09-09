@@ -10,6 +10,7 @@ import FileViewer from "react-native-file-viewer";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import * as WebBrowser from "expo-web-browser";
+import LargeButton from "./LargeButton";
 
 export default function EventTab2(){
 
@@ -247,9 +248,7 @@ return(
             <TextInput value={event.email} onChangeText={(text) => updateEvent("email", text)}style={styles.textInput}></TextInput>
         </View>
         <View style={styles.centerView}>
-            <TouchableOpacity style={styles.button} onPress={openDocument}>
-                <Text style={styles.buttonText}>Criar Evento</Text>
-            </TouchableOpacity>
+            <LargeButton buttonText={'Criar evento'} action={console.log} params={'Button 2'}></LargeButton>
         </View>
     </View>
 );
