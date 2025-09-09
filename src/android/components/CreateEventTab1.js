@@ -2,8 +2,7 @@ import { Alert, Linking, Image, Button, Modal, StyleSheet, StatusBar, View, Text
 import Checkbox from 'expo-checkbox';
 import {useContext, useState, useEffect } from "react";
 import RNCalendarEvents from 'react-native-calendar-events';
-import {Calendar} from 'react-native-calendars';
-import * as Permissions from 'expo-permissions';
+import * as Calendar from 'expo-calendar';
 import { AppContext } from "./AppContext";
 import { Dropdown } from 'react-native-element-dropdown';
 import LargeButton from "./LargeButton";
@@ -19,6 +18,10 @@ export default function EventTab1({navigation}){
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleSave = () => {
+    Alert.alert("Saved!", "Your data has been stored.");
   };
 
   const [val, setVal] = useState(null);
@@ -96,12 +99,14 @@ export default function EventTab1({navigation}){
     try {
       const data = JSON.parse(text);
       setResponseData(data);
+      
     } catch {
       console.warn("Response is not valid JSON");
     }
   } catch (error) {
     console.error("Fetch error:", error);
   }
+  navigation.navigate('Agenda');
 };
 
     const handlePostRequest = async (cod) => {
@@ -142,6 +147,7 @@ export default function EventTab1({navigation}){
   };
 
     async function createCalendarEvent() {
+      console.log('CreateEvent called');
       const { status } = await Calendar.requestCalendarPermissionsAsync();
       if (status === 'granted') {
         const calendars = await Calendar.getCalendarsAsync();
@@ -154,6 +160,7 @@ export default function EventTab1({navigation}){
           location: event.endereco,
           notes: event.descricao,
           timeZone: 'America/Sao_Paulo', // timezone here
+          alarms: [{ date: -10 }, {date:-30}], // reminder 10 minutes before
         });
         
         console.log("Event id: ", codEvent);
@@ -169,6 +176,48 @@ export default function EventTab1({navigation}){
         return codEvent;
       }
     }
+
+    async function createCalendarEventNew() {
+          console.log('CreateEvent called');
+          // Request permissions
+          const { status } = await Calendar.requestCalendarPermissionsAsync();
+          if (status !== 'granted') {
+            console.log('Permission denied');
+           return;
+          }
+          // Get the default calendar (usually the device primary)
+          const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+          const defaultCalendar = calendars.find(cal => cal.source && cal.allowsModifications);
+    
+          if (!defaultCalendar) {
+            console.log('No writable calendar found');
+          return;
+          }
+    
+    
+             const codEvent = await Calendar.createEventAsync(defaultCalendar.id, {
+              title: 'Reunião de Projeto',
+              startDate: new Date('2025-09-03T09:00:00'), // local time
+              endDate: new Date('2025-09-03T10:00:00'),
+              location: 'Escritório São Paulo',
+              notes: 'Discutir próximas entregas',
+              timeZone: 'America/Sao_Paulo', // ✅ timezone here
+              alarms: [{ date: -10 }, {date:-30}], // reminder 10 minutes before
+            });
+    
+            console.log('Event created with ID:', codEvent);
+    
+            updateEventField('codEvento', codEvent);
+    
+    
+            console.log('Event codEvent after update: ', event.codEvento);
+    
+            handlePostRequest2(codEvent);
+            
+    
+            return codEvent;
+         
+        }
 
  useEffect(() => {
 
@@ -282,7 +331,7 @@ return(
 
         </View>
         <View style={styles.centerView}>
-            <LargeButton buttonText={'My connection'} action={createCalendarEvent} params={''}></LargeButton>
+            <LargeButton buttonText={'Criar Evento'} action={createCalendarEventNew}></LargeButton>
         </View>
 
         <Modal

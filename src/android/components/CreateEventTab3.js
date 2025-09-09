@@ -1,26 +1,31 @@
-  import {TextInput, StatusBar, StyleSheet, View, Text, TouchableOpacity } from "react-native";
-  import { Dropdown } from "react-native-element-dropdown";
-  import { AppContext } from "./AppContext";
-  import { useState, useContext } from "react";
+  import { Alert, Linking, Image, Button, Modal, StyleSheet, StatusBar, View, Text, TouchableOpacity, TextInput } from "react-native";
+import Checkbox from 'expo-checkbox';
+import {useContext, useState, useEffect } from "react";
+import * as Calendar from 'expo-calendar';
+import { AppContext } from "./AppContext";
+import { Dropdown } from 'react-native-element-dropdown';
+import LargeButton from "./LargeButton";
 
-  export default function EventTab3(){
+export default function EventTab1({navigation}){
 
     const { event, setEvent, updateEventField} = useContext(AppContext);
-const updateEvent = (field, value) => {
+    
+
+    // Helper: update one field only
+  const updateEvent = (field, value) => {
     setEvent(prev => ({
       ...prev,
       [field]: value,
     }));
   };
 
-    const data = [
-  { label: "Brazil", value: "BR" },
-  { label: "USA", value: "US" },
-  { label: "Canada", value: "CA" },
-  { label: "France", value: "FR" },
-];
+  const handleSave = () => {
+    Alert.alert("Saved!", "Your data has been stored.");
+  };
 
-const categorias = [ 
+  const [val, setVal] = useState(null);
+
+    const categorias = [ 
     {value: "11", label: "Consulta" }, 
     { value: "8", label: "Edição" }, 
     { value: "5", label: "Etapa do projeto" }, 
@@ -33,74 +38,304 @@ const categorias = [
     { value: "9", label: "Reunião" }, 
     { value: "7", label: "Tarefa" } ];
 
-const [value, setValue] = useState(null);
+    const [isChecked, setChecked] = useState(false);
+    const [titulo, setTitulo] = useState("");
+    const [descricao, setDescricao]= useState("");
+    const [endereco, setEndereco]=useState("");
+    const [dataInicio, setDataInicio]=useState("");
+    const [dataTermino, setDataTermino]=useState("");
+    const [eventId, setEventId]=useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [calendarInput, setCalendarInput] = useState("");
 
-    return (
-      <View style={styles.container}>
-        <StatusBar 
+    const fullDate = "2025-09-03 16:00:00";
+    const initialDate = fullDate.split(" ")[0];
+
+    console.log("Object keys: ", Object.keys(event));
+
+    const handlePostRequest2 = async (cod) => {
+  try {
+    if (!event) {
+      console.error("event object is undefined");
+      return;
+    }
+
+
+    console.log("Sending request...");
+
+    
+
+    const response = await fetch(
+      "http://atendimento.caed.ufmg.br:8000/timeup2025/createevent.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          codCalendar: cod,
+          tituloEvento: event.titulo,
+          descricaoEvento: event.descricao,
+          prioridadeEvento: event.prioridade,
+          locationEvento: event.endereco,
+          dataInicioEvento: event.dataInicio,
+          dataTerminoEvento: event.dataTermino,
+          codCategoria: event.codCategoria,
+          linkEvento: event.link,
+          arquivoEvento: event.arquivo,
+          nomeContatoEvento: event.nomeContato,
+          numeroContatoEvento: event.numeroContato,
+          emailEvento: event.email,
+        }).toString(),
+      }
+    );
+
+    const text = await response.text();
+    console.log("Raw response:", text);
+
+    // Try parse JSON if possible
+    try {
+      const data = JSON.parse(text);
+      setResponseData(data);
+    } catch {
+      console.warn("Response is not valid JSON");
+    }
+  } catch (error) {
+    console.error("Fetch error:", error);
+  }
+};
+
+    const handlePostRequest = async (cod) => {
+    try {
+      const response = await fetch('http://atendimento.caed.ufmg.br:8000/timeup2025/createevent.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded', // Important for JSON payload
+        },
+        body: new URLSearchParams({
+          codCalendar: cod,
+          tituloEvento: event.titulo,
+          descricaoEvento: event.descricao,
+          prioridadeEvento: event.prioridade,
+          locationEvento: event.endereco,
+          dataInicioEvento: event.dataInicio,
+          dataTerminoEvento: event.dataTermino,
+          codCategoria: event.codCategoria,
+          linkEvento: event.link,
+          arquivoEvento: event.arquivo,
+          nomeContatoEvento: event.nomeContato,
+          numeroContatoEvento: event.numeroContato,
+          emailEvento: event.email
+        }).toString(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setResponseData(data);
+      console.log(data);
+      navigation.replace('Agenda');
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+    async function createCalendarEventNew() {
+      console.log('CreateEvent called');
+      // Request permissions
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Permission denied');
+       return;
+      }
+      // Get the default calendar (usually the device primary)
+      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      const defaultCalendar = calendars.find(cal => cal.source && cal.allowsModifications);
+
+      if (!defaultCalendar) {
+        console.log('No writable calendar found');
+      return;
+      }
+
+
+         const codEvent = await Calendar.createEventAsync(defaultCalendar.id, {
+          title: 'Reunião de Projeto',
+          startDate: new Date('2025-09-03T09:00:00'), // local time
+          endDate: new Date('2025-09-03T10:00:00'),
+          location: 'Escritório São Paulo',
+          notes: 'Discutir próximas entregas',
+          timeZone: 'America/Sao_Paulo', // ✅ timezone here
+          alarms: [{ date: -10 }, {date:-30}], // reminder 10 minutes before
+        });
+
+        console.log('Event created with ID:', codEvent);
+
+        updateEventField('codEvento', codEvent);
+
+
+        console.log('Event codEvent after update: ', event.codEvento);
+
+        handlePostRequest2(codEvent);
+        
+
+        return codEvent;
+     
+    }
+
+ useEffect(() => {
+
+    //updateEventField('titulo','New title');
+    console.log("event.titulo", event.titulo);
+
+    
+  }, []);
+
+  const setValue=(val)=>{
+
+    if(calendarInput==='dataInicio'){
+
+      updateEvent("dataInicio", val + " 08:00:00");
+
+    }
+    else{
+
+      updateEvent("dataTermino", val + " 17:00:00");
+
+    }
+  }
+
+   const openMaps = async () => {
+      const location = event.endereco; // your string
+      const appUrl = `comgooglemaps://?q=${encodeURIComponent(location)}`;
+      const webUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+  
+      try {
+        const supported = await Linking.canOpenURL(appUrl);
+        if (supported) {
+          await Linking.openURL(appUrl); // opens directly in Google Maps app
+        } else {
+          await Linking.openURL(webUrl); // fallback to browser
+        }
+      } catch (err) {
+        Alert.alert("Error", "Unable to open Google Maps");
+      }
+    };
+    
+
+return(
+    <View style={styles.container}>
+      <StatusBar 
                 backgroundColor="#2a69b9" // Android only
                 barStyle="light-content"   // "dark-content" for dark text/icons
               />
-      <Text style={styles.label}>Categoria</Text>
-      <View style={{padding: 20, flex: 1, justifyContent: "center" }}>
-        <Dropdown
-                style={styles.dropdown}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                data={categorias}
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder="Escolhe a categoria"
-                value={value}
-                onChange={(item) => {
-                  setValue(item.value);
-                  console.log("Selected:", item);
-                }}
-              />
-      </View>
-      
 
-      <View style={styles.questionNoImage}>
-                  <Text style={styles.labelText}>Link da tarefa</Text>
-                  <TextInput value={event.link} onChangeText={(text) => updateEvent("link", text)}style={styles.textInput}></TextInput>
-      </View>
-              <View style={styles.questionNoImage}>
-                  <Text style={styles.labelText}>Anexar Arquivo</Text>
-                  <TextInput value={event.arquivo} onChangeText={(text) => updateEvent("arquivo", text)}style={styles.textInput}></TextInput>
-              </View>
-              <View style={styles.questionNoImage}>
-                  <Text style={styles.labelText}>Nome Contato</Text>
-                  <TextInput value={event.nomeContato} onChangeText={(text) => updateEvent("nomeContato", text)}style={styles.textInput}></TextInput>
-              </View>
-              <View style={styles.questionNoImage}>
-                  <Text style={styles.labelText}>Número</Text>
-                  <TextInput value={event.numeroContato} onChangeText={(text) => updateEvent("numeroContato", text)}style={styles.textInput}></TextInput>
-              </View>
-              <View style={styles.questionNoImage}>
-                  <Text style={styles.labelText}>E-mail</Text>
-                  <TextInput value={event.email} onChangeText={(text) => updateEvent("email", text)}style={styles.textInput}></TextInput>
-              </View>
-              <View style={styles.centerView}>
-                  <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate('Eventos')}>
-                      <Text style={styles.buttonText}>Criar Evento</Text>
-                  </TouchableOpacity>
-              </View>
-      
-    </View>  
-    );
-  };
+        <View style={styles.questionNoImage}>
+                    <Text style={styles.labelText}>Categoria</Text>
+                <Dropdown
+                        style={styles.dropdown}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        data={categorias}
+                        maxHeight={200}
+                        labelField="label"
+                        valueField="value"
+                        placeholder="Escolhe a categoria"
+                        value={val}
+                        onChange={(item) => {
+                          setVal(item.value);
+                          console.log("Selected:", item);
+                        }}
+                      />
+                </View>
+        <View style={styles.questionNoImage}>
+            <Text style={styles.labelText}>Título</Text>
+            <TextInput value={event.titulo} onChangeText={(text) => updateEvent("titulo", text)} style={styles.textInput}></TextInput>
+        </View>
+        <View style={styles.questionNoImage}>
+            <Text style={styles.labelText}>Descrição</Text>
+            <TextInput value={event.descricao} onChangeText={(text) => updateEvent("descricao", text)} style={styles.textInput}></TextInput>
+        </View>
+        <View style={[styles.questionNoImage, {flexDirection:'row'}]}>
+             <Checkbox
+                style={styles.checkbox}
+                value={isChecked}
+                onValueChange={setChecked}
+                color={isChecked ? '#4630EB' : undefined}
+                />
+            <Text style={styles.labelText}>Prioridade</Text>
+        </View>
+        <View style={styles.questionNoImage}>
+            <Text style={styles.labelText}>Endereço</Text>
+            <View style={{flexDirection:'row'}}>
+                <TextInput onChangeText={(text) => updateEvent("endereco", text)} style={[styles.textInput, {width:300}]}>{event.endereco}</TextInput>
+                <TouchableOpacity onPress={openMaps}>
+                    <Image style={styles.logo} source={require('../assets/location.png')}></Image>
+                </TouchableOpacity>
+                          
+                </View>
+            </View>
+        <View style={styles.questionNoImage}>
+            <Text style={styles.labelText}>Data de Início</Text>
+            <View style={{flexDirection:'row'}}>
+              <TextInput value={event.dataInicio} onChangeText={(text) => updateEvent("dataInicio", text)} style={[styles.textInput, {width:300}]}></TextInput>
+              <TouchableOpacity onPress={() => {setModalVisible(true); setCalendarInput("dataInicio")}}>
+                    <Image style={styles.logo} source={require('../assets/agendaicone.png')}></Image>
+                </TouchableOpacity>
+            </View>
+        </View>
+        <View style={styles.questionNoImage}>
+            <Text style={styles.labelText}>Data de Término</Text>
+            <View style={{flexDirection:'row'}}>
+                <TextInput value={event.dataTermino} onChangeText={(text) => updateEvent("dataTermino", text)} style={[styles.textInput, {width:300}]}></TextInput>
+                <TouchableOpacity onPress={() => {setModalVisible(true); setCalendarInput("dataTermino")}}>
+                    <Image style={styles.logo} source={require('../assets/agendaicone.png')}></Image>
+                </TouchableOpacity>
+            </View>
+
+        </View>
+        <View style={styles.centerView}>
+            <LargeButton buttonText={'Criar Evento'} action={createCalendarEvent}></LargeButton>
+        </View>
+
+        <Modal
+        transparent={true}
+        animationType="fade"
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Calendar
+            current={initialDate}
+              initialDate={initialDate}
+              onDayPress={(day) => {
+
+                setValue(day.dateString);
+
+                setModalVisible(false);
+              }}
+              markedDates={{
+                [selectedDate]: { selected: true, selectedColor: "blue" },
+              }}
+            />
+            <Button title="Close" onPress={() => setModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
 
 
-  const styles = StyleSheet.create({
-    container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  
-    dropdown: {
+        
+        
+    </View>
+);
+
+}
+
+const styles = StyleSheet.create({
+  dropdown: {
       height: 50,
       width:360,
       borderColor: 'gray',
@@ -108,57 +343,30 @@ const [value, setValue] = useState(null);
       borderRadius: 8,
       paddingHorizontal: 8,
     },
-    icon: {
-      marginRight: 5,
-    },
-    label: {
-      position: 'absolute',
-      backgroundColor: 'white',
-      left: 22,
-      top: 8,
-      zIndex: 999,
-      paddingHorizontal: 8,
-      fontSize: 14,
-    },
-    placeholderStyle: {
-      fontSize: 16,
-    },
-    selectedTextStyle: {
-      fontSize: 16,
-    },
-    iconStyle: {
-      width: 20,
-      height: 20,
-    },
-    inputSearchStyle: {
-      height: 40,
-      fontSize: 16,
-    },
-    button:{
-    backgroundColor:'blue',
-    padding:15,
-    width:350
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  buttonText:{
-    color:'white',
-    fontWeight:'bold',
-    fontSize:18,
-    textAlign:'center'
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 10,
+    width: "90%",
+    elevation: 5,
   },
-  centerView:{
-    flex:1,
-    alignItems:'center',
-    margin:25,
-    marginTop:15
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
   },
-  icon: {
-      marginRight: 5,
-    },
   questionNoImage:{
     alignItems:'flex-start',
     marginLeft:25,
     marginTop:15,
-    marginBottom:10
+    marginBottom:2
   },
   labelText:{
     color:'black',
@@ -192,37 +400,9 @@ const [value, setValue] = useState(null);
     margin:25,
     marginTop:15
   },
-  placeholderStyle: {
-    fontSize: 16,
-    color: "gray",
-  },
-  selectedTextStyle: {
-    fontSize: 16,
-    color: "black",
-  },
-  label2: { marginBottom: 8, fontSize: 16 },
-  
-    label: {
-      position: 'absolute',
-      backgroundColor: 'white',
-      left: 22,
-      top: 8,
-      zIndex: 999,
-      paddingHorizontal: 8,
-      fontSize: 14,
-    },
-    placeholderStyle: {
-      fontSize: 16,
-    },
-    selectedTextStyle: {
-      fontSize: 16,
-    },
-    iconStyle: {
-      width: 20,
-      height: 20,
-    },
-    inputSearchStyle: {
-      height: 40,
-      fontSize: 16
-    }
-  });
+  logo:{
+     width:40,
+     height:40,
+     resizeMode:'contain'
+  }
+});

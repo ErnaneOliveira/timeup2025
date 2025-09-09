@@ -1,11 +1,11 @@
 import { TouchableOpacity, View, StyleSheet, Text } from "react-native";
 
 
-export default function LargeButton({buttonText, action, params}){
+export default function LargeButton({buttonText, action}){
 
     return(
 
-        <TouchableOpacity style={styles.button} onPress={()=> action(params)}>
+        <TouchableOpacity style={styles.button} onPress={action}>
             <Text style={styles.labelText}>   
                 {buttonText}
             </Text>
