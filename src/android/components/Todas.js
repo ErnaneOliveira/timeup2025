@@ -10,10 +10,28 @@ export default function Todas({route, navigation}){
   const { data } = route.params || [];
   const codCategory = route.params.codCategory;
   const [selectedIndex, setSelectedIndex] = useState(3);
+  let filtered ={};
+  const [head, setHead]= useState({});
+
+  const handlePostRequest = async () => {
+
+      const response = await fetch("http://atendimento.caed.ufmg.br:8000/timeup2025/getevents.php?codCategoria=%");
+      const text = await response.text();
+      //console.log("Raw response:", text);
+
+      // Try parse JSON if possible
+      try {
+        const data = JSON.parse(text);
+        setResponseData(data);
+        //console.log(data);
+      } catch {
+        console.warn("Response is not valid JSON");
+      }
+      
+    };
 
 
     useEffect(() => {
-      setSelectedIndex(3);
 
     const handlePostRequest = async () => {
 
@@ -29,8 +47,12 @@ export default function Todas({route, navigation}){
       } catch {
         console.warn("Response is not valid JSON");
       }
+      
     };
     handlePostRequest();
+    getSelectedCategory(3);
+
+    
     
   }, []);
 
@@ -66,13 +88,14 @@ export default function Todas({route, navigation}){
 
     }
     let headers = {};
-    const getHeaders=()=>{
-
-      
+    
+    const getHeaders=async (categoria)=>{
 
       for(let i=0; i<responseData.length; i++){
 
+        if(responseData[i].codCategoria==categoria){
         headers[formatData(responseData[i].dataInicioEvento)]= [];
+        }
       }
 
       console.log("Headers: ", headers);
@@ -84,31 +107,45 @@ export default function Todas({route, navigation}){
         let array =[];
         for(let i=0; i<responseData.length; i++){
             
-          if(keys[j]==formatData(responseData[i].dataInicioEvento)){
+          if(keys[j]==formatData(responseData[i].dataInicioEvento) && responseData[i].codCategoria==categoria){
 
             array.push({
-              titulo: formatHour(responseData[i].dataInicioEvento) + " " + responseData[i].tituloEvento,
-            codEvento: responseData[i].codEvento});
+            titulo: formatHour(responseData[i].dataInicioEvento) + " " + responseData[i].tituloEvento,
+            codEvento: responseData[i].codEvento, codCategoria: responseData[i].codCategoria});
              
           }
+
           headers[keys[j]] = array;
+                   
 
         }
-      }
 
+        
+      }
+      
       console.log(headers);
+      
+      
 
       }
 
+      
 
+      const getSelectedCategory=(cod)=>{
+
+        getHeaders(cod);
+        setSelectedIndex(cod);
+        setHead(headers);
+
+      } 
     
-    getHeaders();
+    
 
     const selected ='#c7fcce';
     const defaultColor = "#f4f4f4";
 
     const categorias = [ 
-    {value: "11", label: "Consulta" }, 
+    {value: "0", label: "Consulta" }, 
     { value: "8", label: "Edição" }, 
     { value: "5", label: "Etapa" }, 
     { value: "1", label: "Evento" }, 
@@ -119,10 +156,6 @@ export default function Todas({route, navigation}){
     { value: "4", label: "Reserva" }, 
     { value: "9", label: "Reunião" }, 
     { value: "7", label: "Tarefa" } ];
-
-    
-
-
 
 
     return(
@@ -138,15 +171,16 @@ export default function Todas({route, navigation}){
                 
               <TabButton key={index} 
                 label={button.label} 
-                action={button.value} 
-                mycolor={button.value === selectedIndex.toString() ? selected : defaultColor}/>
+                action={getSelectedCategory}
+                params={(button.value)} 
+                mycolor={button.value === selectedIndex.toString()? selected : defaultColor}/>
                 
                 ))}
 
             </ScrollView>
             
             <ScrollView style={styles.questionNoImage}>
-              {Object.entries(headers).map(([date, events]) => (
+              {Object.entries(head).map(([date, events]) => (
                 
         <View key={date} style={styles.section}>
           {/* Header */}

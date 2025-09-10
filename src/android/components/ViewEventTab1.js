@@ -4,7 +4,9 @@ import {useContext, useState, useEffect } from "react";
 import RNCalendarEvents from 'react-native-calendar-events';
 import * as Permissions from 'expo-permissions';
 import { AppContext } from "./AppContext";
-import { Calendar } from "react-native-calendars";
+import { Calendar as CalendarView } from "react-native-calendars";
+import LargeButton from "./LargeButton";
+import * as Calendar from 'expo-calendar';
 
 export default function ViewEventTab1({route, navigation}){
 
@@ -61,6 +63,8 @@ export default function ViewEventTab1({route, navigation}){
       setResponseData(data);
       //console.log(data);
 
+        updateEvent('codEvento', codEvento);
+        updateEvent('codCalendar', data[0].codCalendar);
         updateEvent('titulo', data[0].tituloEvento);
         updateEvent('descricao', data[0].descricaoEvento);
         updateEvent('prioridade', data[0].prioridadeEvento);
@@ -82,7 +86,77 @@ export default function ViewEventTab1({route, navigation}){
     handlePostRequest2();
     
   }, []);
-    
+
+  const confirmDelete=()=>{
+
+    Alert.alert(
+      "Confirmar ação",
+      "Deseja excluir o item do calendário?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel pressed"),
+          style: "cancel", // iOS: bolds this option
+        },
+        {
+          text: "OK",
+          onPress: () => deletarEvento(),
+        },
+      ],
+      { cancelable: true } // if true, tapping outside dismisses alert
+    );
+
+  }
+
+  async function deleteCalendarEvent(eventId) {
+  try {
+    // Request permission first
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status !== "granted") {
+      console.log("Calendar permission not granted");
+      return;
+    }
+
+    // Delete event
+    await Calendar.deleteEventAsync(eventId, {
+      futureEvents: false, // if true, deletes this + all following recurring events
+      instanceStartDate: undefined, // optional: needed if you only want a single instance of a recurring event
+    });
+
+    console.log("Event deleted:", eventId);
+  } catch (error) {
+    console.error("Error deleting event:", error);
+  }
+}
+
+  const deletarEvento = async () => {
+        try {
+            
+            console.log("Sending request...");
+
+            const response = await fetch("http://atendimento.caed.ufmg.br:8000/timeup2025/deletarevento.php?codEvento="+codEvento);
+            
+            const text = await response.text();
+            console.log("Raw response:", text);
+
+            // Try parse JSON if possible
+            try {
+            const data = JSON.parse(text);
+            setResponseData(data);
+            
+            } catch {
+            console.warn("Response is not valid JSON");
+            }
+        } catch (error) {
+                console.error("Fetch error:", error);
+            }
+
+            deleteCalendarEvent(event.codCalendar);
+            Alert.alert("Ação confirmada","Evento deletado com sucesso");
+
+            navigation.replace('Agenda');
+};
+        
 
 return(
     <View style={styles.container}>
@@ -137,6 +211,9 @@ return(
             </View>
             
         </View>
+        <LargeButton buttonText={'Editar'} action={console.log} params={'My text'}/>
+        <LargeButton buttonText={'Deletar'} action={confirmDelete} params={event.codCalendar} color={'red'}/>
+
 
 
         <Modal
@@ -147,7 +224,7 @@ return(
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Calendar
+            <CalendarView
             current={initialDate}
               initialDate={initialDate}
               onDayPress={(day) => {

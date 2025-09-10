@@ -1,32 +1,28 @@
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { useState, useEffect } from "react";
 
-export default function TabButton({label, action, mycolor}){
+export default function TabButton({label, action, mycolor, params}){
 
     const selected ='#c7fcce';
     const defaultColor = "#f4f4f4";
 
     const [color, setColor]=useState(defaultColor);
     const [selectedIndex, setSelectedIndex] = useState();
-    
-
-    console.log('Label: ', label, ' action: ', action, ' color', color);
-
-    console.log(color);
 
     useEffect(() => {
         setColor(mycolor);
-    }, []);
+    }, [mycolor]);
 
 
     return(
-        <TouchableOpacity onPress={()=> {setSelectedIndex({action})}} style={[styles.button, {backgroundColor: color}]}>
+        <View>
+            <TouchableOpacity onPress={()=> [action(params)]} style={[styles.button, {backgroundColor: color}]}>
             <Text style={styles.label}>{label}</Text>
         </TouchableOpacity>
+        </View>
+        
     )
 };
-
-
 
 const styles = StyleSheet.create({
 

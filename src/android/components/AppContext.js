@@ -5,6 +5,7 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [event, setEvent] = useState({
+    codCalendar: null,
     codEvento: null,
     titulo: "Gravação de videoaula",
     descricao: "Nova gravação",

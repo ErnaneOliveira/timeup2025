@@ -17,6 +17,8 @@ import * as Calendar from 'expo-calendar';
 import * as Permissions from 'expo-permissions';
 import { AppContext } from "./AppContext";
 import { Dropdown } from 'react-native-element-dropdown';
+import { Calendar as CalendarView } from "react-native-calendars";
+
 
 export default function CleanCreateEvent({route, navigation}){
 
@@ -130,26 +132,206 @@ const updateEvent = (field, value) => {
     navigation.navigate('Agenda');
     };
 
+    const setValue=(val)=>{
+        if(calendarInput==='dataInicio'){
+        updateEvent("dataInicio", val + "T08:00:00");
+        }
+        else{
+        updateEvent("dataTermino", val + "T17:00:00");
+        }
+    }
+    const openMaps = async () => {
+      const location = event.endereco; // your string
+      const appUrl = `comgooglemaps://?q=${encodeURIComponent(location)}`;
+      const webUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+  
+      try {
+        const supported = await Linking.canOpenURL(appUrl);
+        if (supported) {
+          await Linking.openURL(appUrl); // opens directly in Google Maps app
+        } else {
+          await Linking.openURL(webUrl); // fallback to browser
+        }
+      } catch (err) {
+        Alert.alert("Error", "Unable to open Google Maps");
+      }
+    };
+
+
      return(
         <View style={styles.container}>
-            <Text style={styles.text}>CleanCreateEvent</Text>
-            <LargeButton buttonText={'Navigate'} action={createCalendarEvent} params={'My text'}/>
+        <StatusBar 
+                backgroundColor="#2a69b9" // Android only
+                barStyle="light-content"   // "dark-content" for dark text/icons
+              />
+
+             <View style={styles.questionNoImage}>
+                <Text style={styles.labelText}>Categoria</Text>
+                <Dropdown
+                                    style={styles.dropdown}
+                                    placeholderStyle={styles.placeholderStyle}
+                                    selectedTextStyle={styles.selectedTextStyle}
+                                    data={categorias}
+                                    maxHeight={200}
+                                    labelField="label"
+                                    valueField="value"
+                                    placeholder="Escolhe a categoria"
+                                    value={val}
+                                    onChange={(item) => {
+                                      setVal(item.value);
+                                      console.log("Selected:", item);
+                                    }}
+                />
+            </View>
+            <View style={styles.questionNoImage}>
+                        <Text style={styles.labelText}>Título</Text>
+                        <TextInput value={event.titulo} onChangeText={(text) => updateEvent("titulo", text)} style={styles.textInput}></TextInput>
+            </View>
+            <View style={styles.questionNoImage}>
+                        <Text style={styles.labelText}>Descrição</Text>
+                        <TextInput value={event.descricao} onChangeText={(text) => updateEvent("descricao", text)} style={styles.textInput}></TextInput>
+            </View>
+            <View style={[styles.questionNoImage, {flexDirection:'row'}]}>
+                         <Checkbox
+                            style={styles.checkbox}
+                            value={isChecked}
+                            onValueChange={setChecked}
+                            color={isChecked ? '#4630EB' : undefined}
+                            />
+                        <Text style={styles.labelText}>Prioridade</Text>
+            </View>
+            <View style={styles.questionNoImage}>
+                        <Text style={styles.labelText}>Endereço</Text>
+                        <View style={{flexDirection:'row'}}>
+                            <TextInput onChangeText={(text) => updateEvent("endereco", text)} style={[styles.textInput, {width:300}]}>{event.endereco}</TextInput>
+                            <TouchableOpacity onPress={openMaps}>
+                                <Image style={styles.logo} source={require('../assets/location.png')}></Image>
+                            </TouchableOpacity>
+                                      
+                            </View>
+            </View>
+            <View style={styles.questionNoImage}>
+                        <Text style={styles.labelText}>Data de Início</Text>
+                        <View style={{flexDirection:'row'}}>
+                          <TextInput value={event.dataInicio} onChangeText={(text) => updateEvent("dataInicio", text)} style={[styles.textInput, {width:300}]}></TextInput>
+                          <TouchableOpacity onPress={() => {setModalVisible(true); setCalendarInput("dataInicio")}}>
+                                <Image style={styles.logo} source={require('../assets/agendaicone.png')}></Image>
+                            </TouchableOpacity>
+                        </View>
+            </View>
+            <View style={styles.questionNoImage}>
+                        <Text style={styles.labelText}>Data de Término</Text>
+                        <View style={{flexDirection:'row'}}>
+                            <TextInput value={event.dataTermino} onChangeText={(text) => updateEvent("dataTermino", text)} style={[styles.textInput, {width:300}]}></TextInput>
+                            <TouchableOpacity onPress={() => {setModalVisible(true); setCalendarInput("dataTermino")}}>
+                                <Image style={styles.logo} source={require('../assets/agendaicone.png')}></Image>
+                            </TouchableOpacity>
+                        </View>
+            
+            </View>
+            <View style={styles.centerView}>
+                   <LargeButton buttonText={'Criar Evento'} action={createCalendarEvent} params={'My text'}></LargeButton>
+            </View>
+            <Modal transparent={true}
+                   animationType="fade"
+                   visible={modalVisible}
+                   onRequestClose={() => setModalVisible(false)}>
+            <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
+                        <CalendarView
+                        current={initialDate}
+                          initialDate={initialDate}
+                          onDayPress={(day) => {
+            
+                            setValue(day.dateString);
+            
+                            setModalVisible(false);
+                          }}
+                          markedDates={{
+                            [selectedDate]: { selected: true, selectedColor: "blue" },
+                          }}
+                        />
+                        <Button title="Close" onPress={() => setModalVisible(false)} />
+                      </View>
+
+            </View>
+            </Modal>
+                    
         </View>
 
      );
-
+     
 };
 
 const styles = StyleSheet.create({
-
-    container:{
-        flex:1,
-        justifyContent:'center',
-        alignItems:'center'
+  dropdown: {
+      height: 50,
+      width:360,
+      borderColor: 'gray',
+      borderWidth: 0.5,
+      borderRadius: 8,
+      paddingHorizontal: 8,
     },
-    text:{
-        fontSize:18,
-        fontWeight:'normal',
-        padding:15
-    }
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 10,
+    width: "90%",
+    elevation: 5,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+  },
+  questionNoImage:{
+    alignItems:'flex-start',
+    marginLeft:25,
+    marginTop:15,
+    marginBottom:2
+  },
+  labelText:{
+    color:'black',
+    fontSize:18
+  },
+  textInput:{
+    width:350,
+    fontWeight:'bold',
+    borderBottomWidth:1,
+    color:'black',
+    fontSize:18
+  },
+   checkbox: {
+    alignSelf: 'center',
+    marginRight:15
+  },
+  button:{
+    backgroundColor:'blue',
+    padding:15,
+    width:350
+  },
+  buttonText:{
+    color:'white',
+    fontWeight:'bold',
+    fontSize:18,
+    textAlign:'center'
+  },
+  centerView:{
+    flex:1,
+    alignItems:'center',
+    margin:25,
+    marginTop:15
+  },
+  logo:{
+     width:40,
+     height:40,
+     resizeMode:'contain'
+  }
 });

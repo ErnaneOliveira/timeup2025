@@ -227,14 +227,10 @@ export default function EventTab1({navigation}){
   const setValue=(val)=>{
 
     if(calendarInput==='dataInicio'){
-
-      updateEvent("dataInicio", val + " 08:00:00");
-
+      updateEvent("dataInicio", val + "T08:00:00");
     }
     else{
-
-      updateEvent("dataTermino", val + " 17:00:00");
-
+      updateEvent("dataTermino", val + "T17:00:00");
     }
   }
 
@@ -365,75 +361,3 @@ return(
 
 }
 
-const styles = StyleSheet.create({
-  dropdown: {
-      height: 50,
-      width:360,
-      borderColor: 'gray',
-      borderWidth: 0.5,
-      borderRadius: 8,
-      paddingHorizontal: 8,
-    },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 10,
-    width: "90%",
-    elevation: 5,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-  },
-  questionNoImage:{
-    alignItems:'flex-start',
-    marginLeft:25,
-    marginTop:15,
-    marginBottom:2
-  },
-  labelText:{
-    color:'black',
-    fontSize:18
-  },
-  textInput:{
-    width:350,
-    fontWeight:'bold',
-    borderBottomWidth:1,
-    color:'black',
-    fontSize:18
-  },
-   checkbox: {
-    alignSelf: 'center',
-    marginRight:15
-  },
-  button:{
-    backgroundColor:'blue',
-    padding:15,
-    width:350
-  },
-  buttonText:{
-    color:'white',
-    fontWeight:'bold',
-    fontSize:18,
-    textAlign:'center'
-  },
-  centerView:{
-    flex:1,
-    alignItems:'center',
-    margin:25,
-    marginTop:15
-  },
-  logo:{
-     width:40,
-     height:40,
-     resizeMode:'contain'
-  }
-});
