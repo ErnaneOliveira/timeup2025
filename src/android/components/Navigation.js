@@ -10,6 +10,7 @@ import Agenda from './Agenda';
 import DetalhesTab from './DetalhesTab';
 import Web from './WebView';
 import Cards from './Cards'
+import CleanCreateEvent from './CleanCreateEvent';
 
 const Stack = createNativeStackNavigator();
 
@@ -26,6 +27,12 @@ export default function Navigation() {
           },headerTintColor: "#fff",       // back button & title color
         }}>
 
+        <Stack.Screen 
+          name="CleanEvent" 
+          component={CleanCreateEvent} 
+          options={{ title: 'CleanCreateEvent'} }
+        />
+        
         <Stack.Screen 
           name="Cards" 
           component={Cards} 
