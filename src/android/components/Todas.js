@@ -179,7 +179,7 @@ export default function Todas({route, navigation}){
 
             </ScrollView>
             
-            <ScrollView style={styles.questionNoImage}>
+            <ScrollView style={styles.questionNoImage} contentContainerStyle={styles.scrollView}>
               {Object.entries(head).map(([date, events]) => (
                 
         <View key={date} style={styles.section}>
@@ -211,16 +211,22 @@ export default function Todas({route, navigation}){
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex:1,
     backgroundColor: '#fff',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
+    borderWidth:1
 
   },
   questionNoImage:{
     marginLeft:15,
     marginTop:15,
     marginBottom:10
+  },
+  scrollView:{
+    flex:1, 
+    alignItems:'flex-start'
+
   },
   labelText:{
     color:'black',

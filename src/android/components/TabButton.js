@@ -15,7 +15,7 @@ export default function TabButton({label, action, mycolor, params}){
 
 
     return(
-        <View>
+        <View style={styles.container}>
             <TouchableOpacity onPress={()=> [action(params)]} style={[styles.button, {backgroundColor: color}]}>
             <Text style={styles.label}>{label}</Text>
         </TouchableOpacity>
@@ -34,6 +34,13 @@ const styles = StyleSheet.create({
     },
     label:{
         fontSize:16
+    },
+    container:{
+
+        height:80,
+        flex:1,
+        alignItems:'flex-start'
+
     }
 
 });
