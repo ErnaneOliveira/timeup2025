@@ -13,7 +13,7 @@ export const AppProvider = ({ children }) => {
     endereco: "UFMG",
     dataInicio:"2025-09-10T10:05:00",
     dataTermino:"2025-09-10T11:05:00",
-    codCategoria: 3,
+    codCategoria: null,
     link: "google.com",
     arquivo:"meuarquivo.zip",
     nomeContato:"Ernane Oliveira",

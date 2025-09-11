@@ -39,19 +39,20 @@ const updateEvent = (field, value) => {
     }));
  };
 
- const categorias = [ 
-    {value: "11", label: "Consulta" }, 
-    { value: "8", label: "Edição" }, 
-    { value: "5", label: "Etapa do projeto" }, 
-    { value: "1", label: "Evento" }, 
-    { value: "3", label: "Gravação" }, 
-    { value: "10", label: "Live" }, 
-    { value: "6", label: "Microfundamento" }, 
-    { value: "2", label: "Prova" }, 
-    { value: "4", label: "Reserva de Estúdio" }, 
-    { value: "9", label: "Reunião" }, 
-    { value: "7", label: "Tarefa" } 
+const categorias = [ 
+        {value: "11", label: "Consulta" }, 
+        { value: "8", label: "Edição" }, 
+        { value: "5", label: "Etapa" }, 
+        { value: "1", label: "Evento" }, 
+        { value: "3", label: "Gravação" }, 
+        { value: "10", label: "Live" }, 
+        { value: "6", label: "MF" }, 
+        { value: "2", label: "Prova" }, 
+        { value: "4", label: "Reserva" }, 
+        { value: "9", label: "Reunião" }, 
+        { value: "7", label: "Tarefa" } 
 ];
+
 
     async function createCalendarEvent(text) {
         console.log('Text:', text);
@@ -156,6 +157,19 @@ const updateEvent = (field, value) => {
         Alert.alert("Error", "Unable to open Google Maps");
       }
     };
+    const handleCheckboxChange = (newValue) => {
+      let val;
+      setChecked(newValue); // update local state
+      if(newValue){
+        val =0;
+      }
+      else{
+        val=1;
+      }
+      updateEvent("prioridade", val);
+      console.log(event.prioridade);
+    };
+
 
 
      return(
@@ -168,19 +182,20 @@ const updateEvent = (field, value) => {
              <View style={styles.questionNoImage}>
                 <Text style={styles.labelText}>Categoria</Text>
                 <Dropdown
-                                    style={styles.dropdown}
-                                    placeholderStyle={styles.placeholderStyle}
-                                    selectedTextStyle={styles.selectedTextStyle}
-                                    data={categorias}
-                                    maxHeight={200}
-                                    labelField="label"
-                                    valueField="value"
-                                    placeholder="Escolhe a categoria"
-                                    value={val}
-                                    onChange={(item) => {
-                                      setVal(item.value);
-                                      console.log("Selected:", item);
-                                    }}
+                    style={styles.dropdown}
+                    placeholderStyle={styles.placeholderStyle}
+                    selectedTextStyle={styles.selectedTextStyle}
+                    data={categorias}
+                    maxHeight={200}
+                    labelField="label"
+                    valueField="value"
+                    placeholder="Escolhe a categoria"
+                    value={val}
+                    onChange={(item) => {
+                      setVal(item.value);
+                      updateEvent("codCategoria", item.value);
+                      console.log("Selected:", item);
+                    }}
                 />
             </View>
             <View style={styles.questionNoImage}>
@@ -195,7 +210,7 @@ const updateEvent = (field, value) => {
                          <Checkbox
                             style={styles.checkbox}
                             value={isChecked}
-                            onValueChange={setChecked}
+                            onValueChange={handleCheckboxChange}
                             color={isChecked ? '#4630EB' : undefined}
                             />
                         <Text style={styles.labelText}>Prioridade</Text>

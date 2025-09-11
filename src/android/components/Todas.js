@@ -50,7 +50,7 @@ export default function Todas({route, navigation}){
       
     };
     handlePostRequest();
-    getSelectedCategory(3);
+    getSelectedCategory(0);
 
     
     
@@ -145,18 +145,17 @@ export default function Todas({route, navigation}){
     const defaultColor = "#f4f4f4";
 
     const categorias = [ 
-    {value: "0", label: "Consulta" }, 
-    { value: "8", label: "Edição" }, 
-    { value: "5", label: "Etapa" }, 
-    { value: "1", label: "Evento" }, 
-    { value: "3", label: "Gravação" }, 
-    { value: "10", label: "Live" }, 
-    { value: "6", label: "MF" }, 
-    { value: "2", label: "Prova" }, 
-    { value: "4", label: "Reserva" }, 
-    { value: "9", label: "Reunião" }, 
-    { value: "7", label: "Tarefa" } ];
-
+        {value: "3", label: "Consulta" }, 
+        { value: "8", label: "Edição" }, 
+        { value: "5", label: "Etapa" }, 
+        { value: "1", label: "Evento" }, 
+        { value: "3", label: "Gravação" }, 
+        { value: "10", label: "Live" }, 
+        { value: "6", label: "MF" }, 
+        { value: "2", label: "Prova" }, 
+        { value: "4", label: "Reserva" }, 
+        { value: "9", label: "Reunião" }, 
+        { value: "7", label: "Tarefa" } ];
 
     return(
 
@@ -165,7 +164,7 @@ export default function Todas({route, navigation}){
           backgroundColor="#2a69b9" // Android only
           barStyle="light-content"   // "dark-content" for dark text/icons
         /> 
-            <Text style={styles.labelHeader}>Todas</Text>
+            <Text style={styles.labelHeader}>Categorias</Text>
             <ScrollView horizontal={true} style={{height:80}}>
               {categorias.map((button, index) => (
                 
@@ -224,8 +223,8 @@ const styles = StyleSheet.create({
     marginBottom:10
   },
   scrollView:{
-    flex:1, 
-    alignItems:'flex-start'
+    
+   
 
   },
   labelText:{
