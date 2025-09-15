@@ -11,6 +11,7 @@ import DetalhesTab from './DetalhesTab';
 import Web from './WebView';
 import Cards from './Cards'
 import CleanCreateEvent from './CleanCreateEvent';
+import EditarEventoTab from './EditarEvento';
 
 const Stack = createNativeStackNavigator();
 
@@ -60,6 +61,12 @@ export default function Navigation() {
           name="Detalhes" 
           component={DetalhesTab} 
           options={{ title: 'Detalhes do evento' }}
+        />
+
+        <Stack.Screen 
+          name="Editar" 
+          component={EditarEventoTab} 
+          options={{ title: 'Editar evento' }}
         />
 
         <Stack.Screen 

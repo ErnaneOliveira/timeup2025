@@ -211,7 +211,7 @@ return(
             </View>
             
         </View>
-        <LargeButton buttonText={'Editar'} action={console.log} params={'My text'}/>
+        <LargeButton buttonText={'Editar'} action={navigation.navigate} params={{url: 'Editar', cod:event.codEvento }}/>
         <LargeButton buttonText={'Deletar'} action={confirmDelete} params={event.codCalendar} color={'red'}/>
 
 

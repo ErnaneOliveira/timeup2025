@@ -5,7 +5,7 @@ export default function LargeButton({buttonText, action, params, color}){
 
     return(
 
-        <TouchableOpacity style={[styles.button, {backgroundColor: color? color: '#1dab61'}]} onPress={()=> action(params)}>
+        <TouchableOpacity style={[styles.button, {backgroundColor: color? color: '#1dab61'}]} onPress={()=> action(params.url, params.cod)}>
             <Text style={styles.labelText}>   
                 {buttonText}
             </Text>
