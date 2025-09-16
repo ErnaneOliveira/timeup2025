@@ -70,7 +70,25 @@ async function createCalendarEvent(text) {
         }
     }
 
-    const handlePostRequest = async (cod) => {
+    async function updateCalendarEvent() {
+      try {
+        const updatedEvent = await Calendar.updateEventAsync(event.codCalendar, {
+          title: event.titulo,
+          startDate: new Date(event.dataInicio),
+          endDate: new Date(event.dataTermino),
+          location: event.endereco,
+          notes: event.descricao,
+        });
+        
+        Alert.alert("Event updated!", `Event ID: ${updatedEvent}`);
+        handlePostRequest();
+
+      } catch (error) {
+        console.error("Error updating event:", error);
+      }
+  }
+
+    const handlePostRequest = async () => {
         try {
             if (!event) {
                 console.error("event object is undefined");
@@ -80,14 +98,14 @@ async function createCalendarEvent(text) {
             console.log("Sending request...");
 
             const response = await fetch(
-            "http://atendimento.caed.ufmg.br:8000/timeup2025/createevent.php",
+            "http://atendimento.caed.ufmg.br:8000/timeup2025/updateeventbyid.php?codCalendar="+event.codCalendar,
             {
                 method: "POST",
                 headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
                 },
                 body: new URLSearchParams({
-                codCalendar: cod,
+                codCalendar: event.codCalendar,
                 tituloEvento: event.titulo,
                 descricaoEvento: event.descricao,
                 prioridadeEvento: event.prioridade,
@@ -118,7 +136,7 @@ async function createCalendarEvent(text) {
     } catch (error) {
         console.error("Fetch error:", error);
     }
-    navigation.navigate('Agenda');
+    navigation.replace('Agenda');
     };
 
  const setValue=(val)=>{
@@ -157,7 +175,15 @@ async function createCalendarEvent(text) {
       updateEvent("prioridade", val);
       console.log(event.prioridade);
     };
+    console.log("Event data: ", event);
 
+    useEffect(() => {
+
+    setVal(event.codCategoria);
+    
+  }, []);
+
+    
     return(
         <View style={styles.container}>
         <StatusBar 
@@ -231,7 +257,7 @@ async function createCalendarEvent(text) {
             
             </View>
             <View style={styles.centerView}>
-                   <LargeButton buttonText={'Criar Evento'} action={createCalendarEvent} params={'My text'}></LargeButton>
+                   <LargeButton buttonText={'Atualizar'} action={updateCalendarEvent} params={'My text'}></LargeButton>
             </View>
             <Modal transparent={true}
                    animationType="fade"
