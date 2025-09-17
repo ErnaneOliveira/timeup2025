@@ -12,12 +12,22 @@ import Web from './WebView';
 import Cards from './Cards'
 import CleanCreateEvent from './CleanCreateEvent';
 import EditarEventoTab from './EditarEvento';
+import { TouchableOpacity } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons"; // has "more-vert" (three dots)
+
+import { AppContext } from "./AppContext";
+import {useContext, useState, useEffect } from "react";
 
 const Stack = createNativeStackNavigator();
 
 export default function Navigation() {
+
+  
+
   return (
     <AppProvider>
+
+      
     <NavigationContainer>
       
       <Stack.Navigator initialRouteName="Home"
@@ -31,7 +41,9 @@ export default function Navigation() {
         <Stack.Screen 
           name="CleanEvent" 
           component={CleanCreateEvent} 
-          options={{ title: 'CleanCreateEvent'} }
+          options={{ title: 'CleanCreateEvent'
+           
+          } }
         />
         
         <Stack.Screen 
@@ -43,12 +55,15 @@ export default function Navigation() {
         <Stack.Screen 
           name="Home" 
           component={Home} 
-          options={{ title: 'Início', headerShown: false} }
+          options={{ title: 'Início', headerShown: false,
+
+          } }
         />
         <Stack.Screen 
           name="Eventos" 
           component={CreateEventTabs} 
-          options={{ title: 'Criar Evento' }}
+          options={{ title: 'Criar Evento'
+           }}
         />
 
         <Stack.Screen 
@@ -77,6 +92,7 @@ export default function Navigation() {
 
       </Stack.Navigator>
     </NavigationContainer>
+
     </AppProvider>
   );
 }

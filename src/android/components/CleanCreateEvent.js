@@ -18,7 +18,9 @@ import * as Permissions from 'expo-permissions';
 import { AppContext } from "./AppContext";
 import { Dropdown } from 'react-native-element-dropdown';
 import { Calendar as CalendarView } from "react-native-calendars";
-
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system/legacy';
+import ICAL from 'ical.js';
 
 export default function CleanCreateEvent({route, navigation}){
 
@@ -38,6 +40,7 @@ const updateEvent = (field, value) => {
       [field]: value,
     }));
  };
+
 
 const categorias = [ 
         {value: "11", label: "Consulta" }, 
@@ -170,6 +173,62 @@ const categorias = [
       console.log(event.prioridade);
     };
 
+    async function importIcsEvent() {
+    try {
+      const res = await DocumentPicker.getDocumentAsync({
+        type: 'text/calendar',
+        copyToCacheDirectory: true,
+      });
+
+      if (res.canceled) {
+        console.log("User cancelled picker");
+        return null;
+      }
+
+      const file = res.assets[0];
+      if (!file.name.endsWith('.ics')) {
+        throw new Error('Please select a valid .ics file');
+      }
+
+      // ✅ using legacy encoding option
+      const icsData = await FileSystem.readAsStringAsync(file.uri, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      const jcalData = ICAL.parse(icsData);
+      const comp = new ICAL.Component(jcalData);
+      const vevent = comp.getFirstSubcomponent('vevent');
+      const evento = new ICAL.Event(vevent);
+      updateEvent("titulo", evento.summary);
+      updateEvent("descricao", evento.description);
+      updateEvent("endereco", evento.location);
+      updateEvent("dataInicio", evento.startDate.toString());
+      updateEvent("dataTermino", evento.endDate.toString());
+     
+      const myevent = {
+        title: evento.summary || '',
+        description: evento.description || '',
+        location: evento.location || '',
+        startDate: evento.startDate?.toJSDate() || null,
+        endDate: evento.endDate?.toJSDate() || null,
+        allDay: evento.startDate?.isDate || false,
+      }; 
+      
+      console.log("Myevent: ", myevent);
+
+      return {
+        title: evento.summary || '',
+        description: evento.description || '',
+        location: evento.location || '',
+        startDate: evento.startDate?.toJSDate() || null,
+        endDate: evento.endDate?.toJSDate() || null,
+        allDay: evento.startDate?.isDate || false,
+      };
+    } catch (err) {
+      console.error("Error importing ICS:", err);
+      return null;
+    }
+}
 
 
      return(
@@ -214,6 +273,7 @@ const categorias = [
                             color={isChecked ? '#4630EB' : undefined}
                             />
                         <Text style={styles.labelText}>Prioridade</Text>
+                        <Text onPress={importIcsEvent} style={styles.labelText}>   Importar ICAL</Text>
             </View>
             <View style={styles.questionNoImage}>
                         <Text style={styles.labelText}>Endereço</Text>
